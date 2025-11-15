@@ -1,6 +1,6 @@
 'use client';
 
-import MDXComponent from '@/content/js/NihaoJs.mdx';
+import MDXComponent from '@/content/Js/nihao-js.mdx';
 
 export default function NihaoJsPage() {
   return (

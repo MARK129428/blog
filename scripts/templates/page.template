@@ -1,6 +1,6 @@
 'use client';
 
-import MDXComponent from '@/content/{{module}}/{{title}}.mdx';
+import MDXComponent from '@/content/{{module}}/{{slug}}.mdx';
 
 export default function {{title}}Page() {
   return (

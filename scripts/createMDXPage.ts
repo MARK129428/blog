@@ -128,7 +128,7 @@ async function main() {
   );
   const pageTsxContent = renderTemplate(pageTemplatePath, {
     title: slugToComponentName(slug), // 页面显示中文
-    module: moduleName,
+    module: capitalize(moduleName),
     slug, // 路由使用拼音 slug
   });
   fs.writeFileSync(pageTsxPath, pageTsxContent, 'utf-8');
@@ -144,7 +144,8 @@ async function main() {
 
   if (!fs.existsSync(pageIndexPath)) {
     const pageIndexContent = renderTemplate(pageIndexTemplatePath, {
-      module: moduleName,
+      module: capitalize(moduleName),
+      moduleName: moduleName,
     });
     fs.writeFileSync(pageIndexPath, pageIndexContent, 'utf-8');
     console.log(`生成模块首页: ${pageIndexPath}`);
