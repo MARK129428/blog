@@ -9,13 +9,13 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 
-export default function {{module}}IndexPage() {
-  const posts = getMdxList('{{module}}');
+export default function {{moduleNameSafe}}IndexPage() {
+  const posts = getMdxList('{{moduleNameSafe}}');
 
   return (
     <main className='p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
       {posts.map((post) => (
-        <Link key={post.slug} href={`/{{moduleName}}/${post.slug}`}>
+        <Link key={post.slug} href={`/{{moduleNameSafe}}/${post.slug}`}>
           <Card className='cursor-pointer hover:shadow-lg transition-shadow'>
             <CardContent>
               <CardTitle>{post.title}</CardTitle>
