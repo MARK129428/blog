@@ -25,9 +25,22 @@ function getFormattedDate() {
 
 // 中文名转拼音 slug
 function toSlug(str: string) {
-  return pinyin(str, { toneType: 'none' }) // 不带声调
-    .replace(/\s+/g, '-') // 空格换成中横线
-    .toLowerCase(); // 全部小写
+  return str
+    .trim()
+    .split('')
+    .map((char) => {
+      // 判断是否中文
+      if (/[\u4e00-\u9fa5]/.test(char)) {
+        return pinyin(char, { toneType: 'none' });
+      }
+      return char; // 英文和数字保持原样
+    })
+    .join('')
+    .replace(/[\s_]+/g, '-') // 空格/下划线 → '-'
+    .replace(/[^\w-]+/g, '') // 移除特殊字符
+    .replace(/-+/g, '-') // 多个 '-' 合并
+    .toLowerCase()
+    .trim();
 }
 
 // 渲染模板：用 {{变量名}} 替换
