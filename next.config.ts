@@ -1,16 +1,11 @@
-import { NextConfig } from 'next';
-import createMDX from '@next/mdx';
+import withMDX from '@next/mdx';
 
 /** @type {import('next').NextConfig} */
-const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: false,
+const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  reactCompiler: true,
+  reactStrictMode: true,
 };
 
-// MDX 配置
-const withMDX = createMDX({
-  extension: /\.(md|mdx)$/,
-});
-
-export default withMDX(nextConfig);
+export default withMDX({
+  extension: /\.mdx?$/,
+})(nextConfig);
