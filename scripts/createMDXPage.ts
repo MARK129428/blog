@@ -43,6 +43,13 @@ function toSlug(str: string) {
     .trim();
 }
 
+function slugToComponentName(slug: string) {
+  return slug
+    .split(/[-_ ]+/) // 按中划线、下划线或空格分割
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // 每个单词首字母大写
+    .join(''); // 拼接成 PascalCase
+}
+
 // 渲染模板：用 {{变量名}} 替换
 function renderTemplate(
   templatePath: string,
@@ -101,7 +108,7 @@ async function main() {
     'scripts/templates/mdx.template',
   );
   const mdxContent = renderTemplate(mdxTemplatePath, {
-    title: pageName, // MDX 显示中文标题
+    title: slug, // MDX 显示中文标题
     date: formattedDate,
     author,
   });
@@ -120,7 +127,7 @@ async function main() {
     'scripts/templates/page.template',
   );
   const pageTsxContent = renderTemplate(pageTemplatePath, {
-    title: pageName, // 页面显示中文
+    title: slugToComponentName(slug), // 页面显示中文
     module: moduleName,
     slug, // 路由使用拼音 slug
   });

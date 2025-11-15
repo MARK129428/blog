@@ -1,8 +1,8 @@
 'use client';
 
-import MDXComponent from '@/content/js/你好 JS.mdx';
+import MDXComponent from '@/content/js/NihaoJs.mdx';
 
-export default function 你好 JSPage() {
+export default function NihaoJsPage() {
   return (
     <main className="p-8">
       <MDXComponent />
