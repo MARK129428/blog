@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 
 import menuGroups from '@/lib/menuGroups';
+import Image from 'next/image';
 
 export function AppSidebar() {
   return (
@@ -29,11 +30,14 @@ export function AppSidebar() {
                         href={item.url}
                         className='flex items-center gap-2 px-2 py-1 rounded hover:bg-sidebar-accent transition-colors'
                       >
-                        <img
+                        <Image
                           src={item.img}
                           alt={item.title}
-                          className='w-5 h-5 object-contain'
+                          width={20} // 对应 w-5
+                          height={20} // 对应 h-5
+                          className='object-contain'
                         />
+
                         <span>{item.title}</span>
                       </a>
                     </SidebarMenuButton>
