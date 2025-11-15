@@ -1,0 +1,20 @@
+---
+title: "{{title}}"
+date: "{{date}}"
+author: "{{author}}"
+description: "这是 {{title}} 页面对应的 MDX 内容示例"
+---
+
+'use client';
+
+import { Button } from '@/components/ui/button';
+
+# {{title}}
+
+这篇文章生成于 {{date}}。
+
+<Button onClick={() => alert('Hello from MDX!')}>点击我</Button>
+
+---
+
+你可以在这里自由添加更多 Markdown 或 React 组件。

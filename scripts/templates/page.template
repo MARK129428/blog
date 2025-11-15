@@ -1,0 +1,11 @@
+'use client';
+
+import MDXComponent from '@/content/{{module}}/{{title}}.mdx';
+
+export default function {{title}}Page() {
+  return (
+    <main className="p-8">
+      <MDXComponent />
+    </main>
+  );
+}
