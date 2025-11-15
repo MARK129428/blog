@@ -5,6 +5,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import './globals.css';
+import Link from 'next/link';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,7 +42,9 @@ export default function RootLayout({
               {/* 顶部 header */}
               <header className='p-2 border-b border-border flex items-center bg-card text-card-foreground'>
                 <SidebarTrigger className='mr-2' />
-                <h1 className='text-lg font-semibold'>何鸿凯的博客</h1>
+                <h1 className='text-lg font-semibold'>
+                  <Link href='/'>何鸿凯的博客</Link>
+                </h1>
               </header>
 
               {/* 页面内容 */}

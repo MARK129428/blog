@@ -1,6 +1,6 @@
-// src/app/{{moduleNameSafe}}/{{slug}}/page.tsx
+// src/app/js/hello/page.tsx
 "use client"
-import MDXComponent, { meta } from '@/content/{{moduleNameSafe}}/{{slug}}.mdx';
+import MDXComponent, { meta } from '@/content/js/hello.mdx';
 import { MDXProvider } from '@mdx-js/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +43,7 @@ function MDXContentClient({ children }: { children: React.ReactNode }) {
 }
 
 // ------------------- 服务端组件：读取 meta -------------------
-export default function {{title}}Page() {
+export default function HelloPage() {
   if (!meta) return <div>文章不存在</div>;
 
   return (

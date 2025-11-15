@@ -56,7 +56,7 @@ export const menuGroups: MenuGroup[] = [
         img: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
         url: '/reactnative',
       },
-      { title: 'Vite', img: 'https://vitejs.dev/logo.svg', url: '#' },
+      { title: 'Vite', img: 'https://vitejs.dev/logo.svg', url: '/vite' },
       {
         title: 'Eslint',
         img: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eslint/eslint-original.svg',
