@@ -1,20 +1,40 @@
 ---
-title: "你好 JS"
-date: "2025-11-16 005019"
+title: "初识 JavaScript"
+date: "2025-11-16 12:00:00"
 author: "Your Name"
-description: "这是 你好 JS 页面对应的 MDX 内容示例"
+description: "这是一个示例文章，演示 MDX 与 React 组件结合使用"
 ---
 
 'use client';
 
 import { Button } from '@/components/ui/button';
 
-# 你好 JS
+# 初识 JavaScript
 
-这篇文章生成于 2025-11-16 005019。
+JavaScript 是 Web 前端开发中不可或缺的语言。它可以用来：
+
+- 操作 DOM
+- 响应用户事件
+- 发起网络请求
+- 构建单页应用
+
+## 简单示例
+
+下面是一个按钮，点击它可以弹出提示：
 
 <Button onClick={() => alert('Hello from MDX!')}>点击我</Button>
 
 ---
 
-你可以在这里自由添加更多 Markdown 或 React 组件。
+## JavaScript 基本语法
+
+```javascript
+// 声明变量
+let name = "MDX 用户";
+
+// 定义函数
+function greet(user) {
+  console.log(`你好, ${user}!`);
+}
+
+greet(name);
