@@ -54,7 +54,7 @@ export const menuGroups: MenuGroup[] = [
       {
         title: 'ReactNative',
         img: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-        url: '/react-native',
+        url: '/reactnative',
       },
       { title: 'Vite', img: 'https://vitejs.dev/logo.svg', url: '#' },
       {
@@ -96,7 +96,7 @@ export const menuGroups: MenuGroup[] = [
       {
         title: 'Mybatis-plus',
         img: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3NzI3Nzc3Nzc3Nzc3MzczNzc3Nzc3Nzc3Nzc3NDY3Nzc3NzA1N//AABEIABsAIAMBEQACEQEDEQH/xAAYAAADAQEAAAAAAAAAAAAAAAAFBgcIBP/EACcQAAIBAwMEAgIDAAAAAAAAAAECAwQFEQAGIQcSMUFRYROyNHFy/8QAGQEAAgMBAAAAAAAAAAAAAAAAAQIAAwQF/8QAKREAAQMCAwYHAAAAAAAAAAAAAQACAxEhBBJRBWFxobHhEzFDgZHw8f/aAAwDAQACEQMRAD8AtNYtUyxtRyIrpICyv4kXwVzgkec5HsDVkZYCc47JHh9spSpcLwr09TdrLdaWrVCq1EdI3c0YBxkgsRxnkdoOPjGt+D8GZwhcNaV/AeaxYoywgyg6V+1I5LlvHUiOlq2httrlq41ODO79it/kAEkfZxrK/B4lvmw9ei1MxWGd6g+Uc2nuyl3GskawvTVcQzJC5zx8g+/I9A8/1ql0UjRVzSOIVgkjJo1wPAob1Pi3NHaIrjtKtniqKRiZ6eJFczRkckKynLLgED2C3k4GkTLPtKY6mteuk/lSu0jSrhT3MSSQBwPJ4GBoVIuFZQGxTLRX6alkKTKkp7SveVGcEY8HjPPnjXWh2u8ANlFd4se/JcqXZLCS6I03G47Jv2RXTXTdsMtAWjlEQ/IJADGkSKqEKByAeDjOO4k8ZOqJcRC4SZc1Xa0teuvsro8PMzJmy0bpW9uFkH6s7/3dR3CayNRGy0rEhZon73qk+VkwMA8cABh4J9awrWphSTlMdpxoJwURiqPLO32SToJgrx0k23Na7ZJdK+Jo6qtAEcbjDRxDkZHosecfAHvOiErjWydLnbKC70jUlzo4KunbkxzIGGfnn396KRZ76o7Ys+3a3ss9IadcgY/M7/sTqIhPnSfadiloUus1vjlrIyCjyszhT5yFJ7c8ecZGopVVPUQX/9k=',
-        url: '/mybatis-plus',
+        url: '/mybatisplus',
       },
       {
         title: 'Redis',
@@ -126,7 +126,7 @@ export const menuGroups: MenuGroup[] = [
       {
         title: 'RabbitMQ',
         img: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rabbitmq/rabbitmq-original.svg',
-        url: '/rabbitMQ',
+        url: '/rabbitmq',
       },
       {
         title: 'Kibana',
