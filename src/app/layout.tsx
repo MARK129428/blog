@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: '何鸿凯的博客',
-  description: '何鸿凯的技术博客，记录学习和生活的点滴。',
+  title: 'Gemini的博客',
+  description: 'Gemini的技术博客，记录学习和生活的点滴。',
 };
 
 export default function RootLayout({
@@ -43,7 +43,7 @@ export default function RootLayout({
               <header className='p-2 border-b border-border flex items-center bg-card text-card-foreground'>
                 <SidebarTrigger className='mr-2' />
                 <h1 className='text-lg font-semibold'>
-                  <Link href='/'>何鸿凯的博客</Link>
+                  <Link href='/'>Gemini的博客</Link>
                 </h1>
               </header>
 
