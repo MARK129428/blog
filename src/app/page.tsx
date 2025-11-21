@@ -27,7 +27,7 @@ export default function HomePage() {
           {/* 头像 */}
           <Image
             src='/avatar.jpeg'
-            alt='何鸿凯头像'
+            alt='Gemini头像'
             width={160}
             height={160}
             className='rounded-full object-cover border-4 border-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg transition-transform duration-500 group-hover:scale-105'
@@ -41,7 +41,7 @@ export default function HomePage() {
         <div className='flex flex-col gap-3'>
           {/* 名字 + Icon */}
           <h2 className='text-4xl sm:text-5xl font-extrabold flex items-center gap-3 justify-center sm:justify-start'>
-            何鸿凯 <Zap className='w-6 h-6 text-yellow-400 animate-bounce' />
+            Gemini <Zap className='w-6 h-6 text-yellow-400 animate-bounce' />
           </h2>
 
           {/* 精炼描述 */}
