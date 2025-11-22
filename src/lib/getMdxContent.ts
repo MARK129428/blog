@@ -27,10 +27,12 @@ export async function getMdxContent(
   const { data, content } = matter(file);
 
   // 确保日期是字符串格式
-  const dateStr = data.date
-    ? data.date instanceof Date
-      ? data.date.toISOString().split('T')[0]
-      : String(data.date)
+  // gray-matter 可能返回 Date 对象，需要先检查
+  const rawDate = data.date;
+  const dateStr = rawDate
+    ? rawDate instanceof Date
+      ? rawDate.toISOString().split('T')[0]
+      : String(rawDate)
     : undefined;
 
   const meta: MdxFrontmatter = {

@@ -28,14 +28,19 @@ export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
     const file = fs.readFileSync(fullPath, 'utf8');
     const { data } = matter(file);
 
-    const meta = data as MdxFrontmatter;
-
     // 确保日期是字符串格式
-    const dateStr = meta.date
-      ? meta.date instanceof Date
-        ? meta.date.toISOString().split('T')[0]
-        : String(meta.date)
+    // gray-matter 可能返回 Date 对象，需要先检查
+    const rawDate = data.date;
+    const dateStr = rawDate
+      ? rawDate instanceof Date
+        ? rawDate.toISOString().split('T')[0]
+        : String(rawDate)
       : undefined;
+
+    const meta: MdxFrontmatter = {
+      ...(data as MdxFrontmatter),
+      date: dateStr,
+    };
 
     return {
       slug: filename.replace(/\.mdx?$/, ''),
