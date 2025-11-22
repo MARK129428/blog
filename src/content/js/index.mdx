@@ -1,0 +1,80 @@
+---
+title: 掌握 React Hooks：從 useState 到 自定義 Hook
+date: 2025-11-22
+author: Alex Chen
+tags: ["React", "JavaScript", "Frontend"]
+cover: /avatar.jpeg
+description: 深入了解 React Hooks 的核心概念、使用場景以及如何創建可重複使用的自定義 Hooks。
+isFeatured: true
+---
+// --- 1. 導入必要的 React 組件 ---
+// 您的構建系統會先使用 gray-matter 提取上方元數據，
+// 然後 MDX 編譯器才會處理剩餘的內容。
+import { CodeBlock } from '@/components/CodeBlock';
+import { Tip } from '@/components/Tip';
+import { AuthorBio } from '@/components/AuthorBio';
+import Image from 'next/image'; // 假設使用 Next.js Image component
+
+// --- 2. 文章主體開始 ---
+
+# 🚀 掌握 React Hooks：從 useState 到 自定義 Hook
+
+React Hooks 的出現徹底改變了我們在函式組件中管理狀態和副作用的方式。它讓程式碼更加清晰、易於測試，並避免了類組件的許多複雜性。
+
+## 一、最基本的 Hook：useState
+
+`useState` 是最常用的 Hook，它讓函式組件能夠擁有自己的狀態。
+
+<Tip type="info">
+  **重要提示：** 您可以在文章內容中使用 `frontmatter` 變數來存取上方提取的資料，**前提是您的 MDX 處理流程（例如 Next.js / Gatsby 的配置）有將這些資料注入到組件的 Props 或 Context 中**。
+  
+  例如：當前文章的標題是：**{frontmatter.title}**
+</Tip>
+
+讓我們看看一個簡單的計數器範例：
+
+<CodeBlock language="jsx">{`
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>當前計數: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        增加
+      </button>
+    </div>
+  );
+}
+`}</CodeBlock>
+
+## 二、處理副作用：useEffect
+
+當您的組件需要與外部世界（例如：數據獲取、訂閱事件、DOM 操作）同步時，您需要用到 `useEffect`。
+
+### 📌 圖片示例
+
+
+<Image 
+  src="/avatar.jpeg"
+  alt="深入了解 React Hooks"
+  width={800}
+  height={450}
+  priority
+/>
+
+### 清理函數的重要性
+
+`useEffect` 的回傳值是一個可選的「清理」函式。這對於防止記憶體洩漏至關重要。
+
+---
+
+## 結論
+
+React Hooks 讓狀態管理變得簡單而優雅。通過熟練掌握內建的 Hooks 並學會創建自己的自定義 Hooks，您將能編寫出更強大、更易維護的 React 應用程式。
+
+### 關於作者
+
+<AuthorBio name={frontmatter.author} date={frontmatter.date} />

@@ -1,39 +1,52 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-
-export interface MdxPostMeta {
-  slug: string;
-  filename: string;
+export interface MdxFrontmatter {
   title: string;
-  date: string;
   description?: string;
+  date?: string;
+  author?: string;
   cover?: string;
   tags?: string[];
 }
 
-export function getMdxList(moduleName: string): MdxPostMeta[] {
-  const CONTENT_DIR = path.join(process.cwd(), 'src', 'content', moduleName);
-  if (!fs.existsSync(CONTENT_DIR)) return [];
+export interface MdxPostMeta extends MdxFrontmatter {
+  slug: string;
+}
 
-  return fs
-    .readdirSync(CONTENT_DIR)
-    .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
-    .map((filename) => {
-      const filePath = path.join(CONTENT_DIR, filename);
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
+export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
+  const dir = path.join(process.cwd(), 'src/content', catalog);
 
-      // 解析 YAML frontmatter
-      const { data } = matter(fileContent);
-      console.log(data);
-      return {
-        slug: filename.replace(/\.(mdx|md)$/, ''),
-        filename,
-        title: data.title ?? filename.replace(/\.(mdx|md)$/, ''),
-        date: data.date ?? '',
-        description: data.description ?? '',
-        cover: data.cover ?? '/avatar.jpeg',
-        tags: data.tags ?? [],
-      };
-    });
+  if (!fs.existsSync(dir)) return [];
+
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'));
+
+  const posts = files.map((filename) => {
+    const fullPath = path.join(dir, filename);
+    const file = fs.readFileSync(fullPath, 'utf8');
+    const { data } = matter(file);
+
+    const meta = data as MdxFrontmatter;
+
+    // 确保日期是字符串格式
+    const dateStr = meta.date
+      ? meta.date instanceof Date
+        ? meta.date.toISOString().split('T')[0]
+        : String(meta.date)
+      : undefined;
+
+    return {
+      slug: filename.replace(/\.mdx?$/, ''),
+      ...meta,
+      date: dateStr,
+    } satisfies MdxPostMeta;
+  });
+
+  posts.sort((a, b) => {
+    return new Date(b.date || '').getTime() - new Date(a.date || '').getTime();
+  });
+
+  return posts;
 }

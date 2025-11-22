@@ -1,40 +1,49 @@
+// next.config.ts
 import withMDX from '@next/mdx';
-import { NextConfig } from 'next';
+import type { NextConfig } from 'next';
+import path from 'path';
 
-/** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
+
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'cdn.jsdelivr.net',
-        port: '',
         pathname: '/gh/devicons/**',
       },
       {
         protocol: 'https',
         hostname: 'vitejs.dev',
-        port: '',
-        pathname: '/logo.svg',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'jd-opensource.github.io',
-        port: '',
-        pathname: '/micro-app/**',
+        hostname: 'vitest.dev',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/u/**',
+        pathname: '/**',
       },
     ],
   },
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  reactStrictMode: true,
+
+  webpack(config) {
+    // 路径别名
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': path.resolve(__dirname, 'src'),
+    };
+
+    return config;
+  },
 };
 
-export default withMDX({
-  extension: /\.mdx?$/,
-})(nextConfig);
+export default withMDX({ extension: /\.mdx?$/ })(nextConfig);
