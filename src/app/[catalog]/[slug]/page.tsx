@@ -260,7 +260,7 @@ export default async function PostPage({
             components={createHeadingComponents(headingIdMap)}
           />
         </div>
-      </article>
+    </article>
 
       {/* 目录 */}
       <aside className='hidden lg:block w-64 flex-shrink-0'>
