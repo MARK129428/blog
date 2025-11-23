@@ -152,14 +152,26 @@ docker run --name rabbitmq-vol-dev \
 --restart always \
 -d rabbitmq
 `}</CodeBlock>
+## 容器内插件是否启用
+加了这一步就可以网页访问了
+RabbitMQ 管理界面需要 rabbitmq_management 插件。你可以在容器里执行：
+<CodeBlock language="bash">{`
+docker exec -it rabbitmq-vol-dev rabbitmq-plugins enable rabbitmq_management
 
+# 创建账户公网访问
+docker exec -it rabbitmq-vol-dev rabbitmqctl add_user admin 123456
+docker exec -it rabbitmq-vol-dev rabbitmqctl set_user_tags admin administrator
+docker exec -it rabbitmq-vol-dev rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+
+
+`}</CodeBlock>
 OK RabbitMQ安装完成了。
 
 # Docker 安装 Nacos
 
 ## 拉取镜像
 <CodeBlock language="bash">{`
-docker pull nacos/nacos-server
+docker pull nacos-registry.cn-hangzhou.cr.aliyuncs.com/nacos/nacos-server:v2.1.1 
 `}</CodeBlock>
 ## 创建具名数据卷
 <CodeBlock language="bash">{`
@@ -169,12 +181,16 @@ docker volume ls | grep nacos-data-volume
 `}</CodeBlock>
 ## 运行 Nacos 容器并挂载 Volume
 <CodeBlock language="bash">{`
-docker run --name nacos-vol-dev \
+docker run --name nacos \
+-e MODE=standalone \
+-e JVM_XMS=128m \
+-e JVM_XMX=128m \
+-e JVM_XMN=64m \
+-e JVM_MS=64m \
+-e JVM_MMS=64m \
 -p 8848:8848 \
--p 9848:9848 \
--v nacos-data-volume:/home/nacos/data \
---restart always \
--d nacos/nacos-server
+-d nacos/nacos-server:v2.1.1
+
 `}</CodeBlock>
 
 OK Nacos安装完成了。
@@ -193,11 +209,12 @@ docker volume ls | grep portainer-data-volume
 `}</CodeBlock>
 ## 运行 Portainer 容器并挂载 Volume
 <CodeBlock language="bash">{`
-docker run --name portainer-vol-dev \
--p 9000:9000 \
--v portainer-data-volume:/data \
---restart always \
--d portainer/portainer
+docker run -d -p 9000:9000 \
+  --name portainer-vol-dev \
+  --restart always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer-data-volume:/data \
+  portainer/portainer-ce
 `}</CodeBlock>
 
 OK Portainer安装完成了。
@@ -216,11 +233,14 @@ docker volume ls | grep minio-data-volume
 `}</CodeBlock>
 ## 运行 Minio 容器并挂载 Volume
 <CodeBlock language="bash">{`
-docker run --name minio-vol-dev \
--p 9000:9000 \
--v minio-data-volume:/data \
---restart always \
--d minio/minio
+docker run -d \
+  --name minio-vol-dev \
+  -p 9002:9000 \
+  -p 9003:9001 \
+  -v minio-data-volume:/data \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
+  minio/minio server /data --console-address ":9001"
 `}</CodeBlock>
 
 OK Minio安装完成了。
