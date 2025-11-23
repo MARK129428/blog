@@ -5,6 +5,7 @@ import { Tip } from '@/components/Tip';
 import { AuthorBio } from '@/components/AuthorBio';
 import { TableOfContents } from '@/components/TableOfContents';
 import { MdxImage } from '@/components/MdxImage';
+import { Mermaid } from '@/components/Mermaid';
 import Image from 'next/image';
 import {
   Card,
@@ -29,6 +30,13 @@ type ListItemProps = ComponentProps<'li'>;
 type BlockquoteProps = ComponentProps<'blockquote'>;
 type CodeProps = ComponentProps<'code'>;
 type AnchorProps = ComponentProps<'a'>;
+type PreProps = ComponentProps<'pre'>;
+
+// 定义代码元素的属性接口
+interface CodeElementProps {
+  children: string;
+  className?: string;
+}
 
 // 创建标题组件工厂函数，使用 headingIdMap
 const createHeadingComponents = (
@@ -41,6 +49,7 @@ const createHeadingComponents = (
   CodeBlock,
   Tip,
   AuthorBio,
+  Mermaid, // Mermaid图表支持
   Image: MdxImage, // 使用可点击放大的图片组件
   Card,
   CardHeader,
@@ -180,6 +189,22 @@ const createHeadingComponents = (
   td: (props: ComponentProps<'td'>) => (
     <td className='border border-border px-4 py-2' {...props} />
   ),
+  pre: (props: PreProps) => {
+    // 检查是否是 Mermaid 图表
+    const codeElement = props.children as React.ReactElement<CodeElementProps>;
+    if (
+      codeElement &&
+      React.isValidElement(codeElement) &&
+      codeElement.props &&
+      typeof codeElement.props.children === 'string' &&
+      codeElement.props.className?.includes('language-mermaid')
+    ) {
+      return <Mermaid>{codeElement.props.children}</Mermaid>;
+    }
+
+    // 普通代码块
+    return <pre className='bg-muted p-4 rounded-lg overflow-x-auto my-4' {...props} />;
+  },
   };
 };
 
