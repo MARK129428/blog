@@ -1,0 +1,282 @@
+---
+title: MDX 功能示例：完整指南
+date: 2025-01-15
+author: Gemini
+tags: ["MDX", "示例", "教程"]
+cover: /avatar.jpeg
+description: 这是一个完整的 MDX 示例文件，展示了所有可用的功能和组件。
+---
+
+# MDX 功能示例：完整指南
+
+欢迎阅读这个 MDX 示例文件！这里展示了所有可用的功能和组件。
+
+## 一、基础 Markdown 语法
+
+### 段落和文本格式
+
+这是普通段落。你可以使用 **粗体**、*斜体*、~~删除线~~ 和 `行内代码`。
+
+### 列表
+
+#### 无序列表
+
+- 第一项
+- 第二项
+  - 嵌套项 1
+  - 嵌套项 2
+- 第三项
+
+#### 有序列表
+
+1. 第一步
+2. 第二步
+3. 第三步
+
+### 引用
+
+> 这是一段引用文字。可以用来突出重要信息或引用他人的话。
+> 
+> 可以包含多行内容。
+
+---
+
+## 二、代码块
+
+### JavaScript 示例
+
+<CodeBlock language="javascript">{`
+// 这是一个 JavaScript 代码示例
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+const message = greet('World');
+console.log(message); // 输出: Hello, World!
+`}</CodeBlock>
+
+### React 组件示例
+
+<CodeBlock language="jsx">{`
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>当前计数: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        增加
+      </button>
+    </div>
+  );
+}
+
+export default Counter;
+`}</CodeBlock>
+
+### TypeScript 示例
+
+<CodeBlock language="typescript">{`
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function getUser(id: number): Promise<User> {
+  return fetch(\`/api/users/\${id}\`)
+    .then(res => res.json());
+}
+`}</CodeBlock>
+
+---
+
+## 三、提示框组件
+
+<Tip type="info">
+**信息提示：** 这是信息类型的提示框。可以用来提供额外的说明或背景信息。
+</Tip>
+
+<Tip type="success">
+**成功提示：** 这是成功类型的提示框。可以用来显示操作成功的消息。
+</Tip>
+
+<Tip type="warning">
+**警告提示：** 这是警告类型的提示框。可以用来提醒用户注意某些事项。
+</Tip>
+
+<Tip type="error">
+**错误提示：** 这是错误类型的提示框。可以用来显示错误信息或需要注意的问题。
+</Tip>
+
+---
+
+## 四、卡片组件
+
+<Card>
+  <CardHeader>
+    <CardTitle>卡片标题</CardTitle>
+    <CardDescription>这是卡片的描述信息</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p>这是卡片的主要内容区域。你可以在这里放置任何内容。</p>
+  </CardContent>
+</Card>
+
+### 多个卡片示例
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
+  <Card>
+    <CardHeader>
+      <CardTitle>功能一</CardTitle>
+    </CardHeader>
+    <CardContent>
+      这是第一个功能卡片
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle>功能二</CardTitle>
+    </CardHeader>
+    <CardContent>
+      这是第二个功能卡片
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle>功能三</CardTitle>
+    </CardHeader>
+    <CardContent>
+      这是第三个功能卡片
+    </CardContent>
+  </Card>
+</div>
+
+---
+
+## 五、标签和徽章
+
+你可以使用标签来标记内容：
+
+<Badge>默认标签</Badge> <Badge variant="secondary">次要标签</Badge> <Badge variant="outline">轮廓标签</Badge>
+
+---
+
+## 六、图片
+
+### 使用 Next.js Image 组件
+
+<Image 
+  src="/avatar.jpeg"
+  alt="示例图片"
+  width={600}
+  height={400}
+/>
+
+---
+
+## 七、表格
+
+| 功能 | 描述 | 状态 |
+|------|------|------|
+| 代码高亮 | 支持多种编程语言 | ✅ 已实现 |
+| 提示框 | 四种类型的提示框 | ✅ 已实现 |
+| 卡片组件 | 可嵌套的卡片布局 | ✅ 已实现 |
+| 目录导航 | 自动生成文章目录 | ✅ 已实现 |
+| 标签系统 | 文章标签展示 | ✅ 已实现 |
+
+### 复杂表格示例
+
+| 组件名称 | 用途 | 示例 |
+|---------|------|------|
+| `CodeBlock` | 代码高亮显示 | 支持语法高亮和行号 |
+| `Tip` | 提示信息 | 支持 info、success、warning、error 四种类型 |
+| `Card` | 卡片容器 | 包含 Header、Title、Description、Content 等子组件 |
+| `Badge` | 标签徽章 | 支持多种变体样式 |
+| `Separator` | 分隔线 | 用于内容分隔 |
+
+---
+
+## 八、分隔线
+
+使用分隔线来分隔不同的内容区块：
+
+<Separator />
+
+这是分隔线后的内容。
+
+---
+
+## 九、使用 Frontmatter 数据
+
+你可以在 MDX 内容中访问 frontmatter 数据：
+
+- 文章标题：**{frontmatter.title}**
+- 发布日期：**{frontmatter.date}**
+- 作者：**{frontmatter.author}**
+
+---
+
+## 十、作者信息
+
+<AuthorBio name={frontmatter.author} date={frontmatter.date} />
+
+---
+
+## 十一、嵌套标题示例
+
+### 三级标题示例
+
+这是三级标题下的内容。
+
+#### 四级标题示例
+
+这是四级标题下的内容。
+
+### 另一个三级标题
+
+更多内容...
+
+---
+
+## 十二、混合使用
+
+你可以将多个组件组合使用：
+
+<Tip type="info">
+**提示：** 在卡片中使用代码块：
+</Tip>
+
+<Card>
+  <CardHeader>
+    <CardTitle>代码示例卡片</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <CodeBlock language="javascript">{`
+const example = '这是一个在卡片中的代码示例';
+console.log(example);
+`}</CodeBlock>
+  </CardContent>
+</Card>
+
+---
+
+## 总结
+
+这个示例文件展示了 MDX 的所有功能：
+
+1. ✅ 基础 Markdown 语法
+2. ✅ 代码高亮（CodeBlock）
+3. ✅ 提示框（Tip）
+4. ✅ 卡片组件（Card）
+5. ✅ 标签（Badge）
+6. ✅ 图片（Image）
+7. ✅ 表格
+8. ✅ 分隔线（Separator）
+9. ✅ 作者信息（AuthorBio）
+10. ✅ 自动目录生成
+
+希望这个示例对你有帮助！
+

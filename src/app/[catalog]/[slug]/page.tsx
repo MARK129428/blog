@@ -3,6 +3,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { CodeBlock } from '@/components/CodeBlock';
 import { Tip } from '@/components/Tip';
 import { AuthorBio } from '@/components/AuthorBio';
+import { TableOfContents } from '@/components/TableOfContents';
 import Image from 'next/image';
 import {
   Card,
@@ -14,7 +15,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from 'lucide-react';
+import { generateId } from '@/lib/extractToc';
+import { getTextContent } from '@/lib/getTextContent';
 import type { ComponentProps } from 'react';
+import React from 'react';
 
 type HeadingProps = ComponentProps<'h1'>;
 type ParagraphProps = ComponentProps<'p'>;
@@ -25,7 +29,14 @@ type BlockquoteProps = ComponentProps<'blockquote'>;
 type CodeProps = ComponentProps<'code'>;
 type AnchorProps = ComponentProps<'a'>;
 
-const mdxComponents = {
+// 创建标题组件工厂函数，使用 headingIdMap
+const createHeadingComponents = (
+  headingIdMap: Record<string, string[]>
+) => {
+  // 用于跟踪每个标题文本出现的次数
+  const headingCounters = new Map<string, number>();
+
+  return {
   CodeBlock,
   Tip,
   AuthorBio,
@@ -37,18 +48,90 @@ const mdxComponents = {
   CardContent,
   Badge,
   Separator,
-  h1: (props: HeadingProps) => (
-    <h1 className='text-4xl font-bold mt-8 mb-4 scroll-mt-20' {...props} />
-  ),
-  h2: (props: HeadingProps) => (
-    <h2 className='text-3xl font-bold mt-6 mb-3 scroll-mt-20' {...props} />
-  ),
-  h3: (props: HeadingProps) => (
-    <h3 className='text-2xl font-semibold mt-4 mb-2 scroll-mt-20' {...props} />
-  ),
-  h4: (props: HeadingProps) => (
-    <h4 className='text-xl font-semibold mt-4 mb-2 scroll-mt-20' {...props} />
-  ),
+  h1: (props: HeadingProps) => {
+    const text = getTextContent(props.children);
+    let id: string | undefined;
+    if (text) {
+      const ids = headingIdMap[text];
+      if (ids && ids.length > 0) {
+        const count = headingCounters.get(text) || 0;
+        id = ids[count] || ids[0];
+        headingCounters.set(text, count + 1);
+      } else {
+        id = generateId(text);
+      }
+    }
+    return (
+      <h1
+        id={id}
+        className='text-4xl font-bold mt-8 mb-4 scroll-mt-20'
+        {...props}
+      />
+    );
+  },
+  h2: (props: HeadingProps) => {
+    const text = getTextContent(props.children);
+    let id: string | undefined;
+    if (text) {
+      const ids = headingIdMap[text];
+      if (ids && ids.length > 0) {
+        const count = headingCounters.get(text) || 0;
+        id = ids[count] || ids[0];
+        headingCounters.set(text, count + 1);
+      } else {
+        id = generateId(text);
+      }
+    }
+    return (
+      <h2
+        id={id}
+        className='text-3xl font-bold mt-6 mb-3 scroll-mt-20'
+        {...props}
+      />
+    );
+  },
+  h3: (props: HeadingProps) => {
+    const text = getTextContent(props.children);
+    let id: string | undefined;
+    if (text) {
+      const ids = headingIdMap[text];
+      if (ids && ids.length > 0) {
+        const count = headingCounters.get(text) || 0;
+        id = ids[count] || ids[0];
+        headingCounters.set(text, count + 1);
+      } else {
+        id = generateId(text);
+      }
+    }
+    return (
+      <h3
+        id={id}
+        className='text-2xl font-semibold mt-4 mb-2 scroll-mt-20'
+        {...props}
+      />
+    );
+  },
+  h4: (props: HeadingProps) => {
+    const text = getTextContent(props.children);
+    let id: string | undefined;
+    if (text) {
+      const ids = headingIdMap[text];
+      if (ids && ids.length > 0) {
+        const count = headingCounters.get(text) || 0;
+        id = ids[count] || ids[0];
+        headingCounters.set(text, count + 1);
+      } else {
+        id = generateId(text);
+      }
+    }
+    return (
+      <h4
+        id={id}
+        className='text-xl font-semibold mt-4 mb-2 scroll-mt-20'
+        {...props}
+      />
+    );
+  },
   p: (props: ParagraphProps) => (
     <p className='mb-4 leading-relaxed text-foreground' {...props} />
   ),
@@ -91,6 +174,7 @@ const mdxComponents = {
   td: (props: ComponentProps<'td'>) => (
     <td className='border border-border px-4 py-2' {...props} />
   ),
+  };
 };
 
 export default async function PostPage({
@@ -99,10 +183,15 @@ export default async function PostPage({
   params: Promise<{ catalog: string; slug: string }>;
 }) {
   const { catalog, slug } = await params;
-  const { meta, content } = await getMdxContent(catalog, slug);
+  const { meta, content, toc, headingIdMap } = await getMdxContent(
+    catalog,
+    slug
+  );
 
   return (
-    <article className='prose lg:prose-xl dark:prose-invert mx-auto p-10 max-w-4xl'>
+    <div className='flex gap-8 p-6 md:p-10 max-w-7xl mx-auto'>
+      {/* 主内容区 */}
+      <article className='prose lg:prose-xl dark:prose-invert flex-1 min-w-0'>
       {/* 头图 */}
       {meta.cover && (
         <div className='relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700'>
@@ -154,17 +243,23 @@ export default async function PostPage({
 
       <Separator className='mb-8' />
 
-      <div className='mt-8'>
-        <MDXRemote
-          source={content}
-          options={{
-            scope: {
-              frontmatter: meta,
-            },
-          }}
-          components={mdxComponents}
-        />
-      </div>
-    </article>
+        <div className='mt-8'>
+          <MDXRemote
+            source={content}
+            options={{
+              scope: {
+                frontmatter: meta,
+              },
+            }}
+            components={createHeadingComponents(headingIdMap)}
+          />
+        </div>
+      </article>
+
+      {/* 目录 */}
+      <aside className='hidden lg:block w-64 flex-shrink-0'>
+        <TableOfContents items={toc} />
+      </aside>
+    </div>
   );
 }
