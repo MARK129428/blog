@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/CodeBlock';
 import { Tip } from '@/components/Tip';
 import { AuthorBio } from '@/components/AuthorBio';
 import { TableOfContents } from '@/components/TableOfContents';
+import { MdxImage } from '@/components/MdxImage';
 import Image from 'next/image';
 import {
   Card,
@@ -40,7 +41,7 @@ const createHeadingComponents = (
   CodeBlock,
   Tip,
   AuthorBio,
-  Image,
+  Image: MdxImage, // 使用可点击放大的图片组件
   Card,
   CardHeader,
   CardTitle,
@@ -151,7 +152,12 @@ const createHeadingComponents = (
     <code className='bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground' {...props} />
   ),
   a: (props: AnchorProps) => (
-    <a className='text-primary hover:underline font-medium' {...props} />
+    <a 
+      className='hover:underline font-medium text-blue-600' 
+      target={props.href?.startsWith('http') ? '_blank' : undefined}
+      rel={props.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+      {...props} 
+    />
   ),
   hr: () => <Separator className='my-8' />,
   table: (props: ComponentProps<'table'>) => (
