@@ -16,26 +16,24 @@ isFeatured: true
 # 安装docker
 
  
-<CodeBlock language="bash">{`
+```bash
 # 添加官方源
 sudo yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+```
 
-
-`}</CodeBlock>
-
-<CodeBlock language="bash">{`
+```bash
 # 安装 Docker Engine
 sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-`}</CodeBlock>
+```
 
-<CodeBlock language="bash">{`
+```bash
 # 启动 Docker
 # 启动 Docker 服务
 sudo systemctl start docker
 
 # 设置开机自启
 sudo systemctl enable docker
-`}</CodeBlock>
+```
 
 # 配置阿里云docker源
 
@@ -48,7 +46,7 @@ sudo systemctl enable docker
 />
 
 配置 Docker Daemon
-<CodeBlock language="bash">{`
+```bash
  
  
 # 验证加速器是否生效
@@ -63,7 +61,7 @@ sudo systemctl enable docker
 sudo systemctl restart docker
 
 docker run hello-world
-`}</CodeBlock>
+```
 
 <Image 
   src="/docker/2.png"
@@ -78,110 +76,108 @@ OK, docker 基础配置完成了。
 # docker 安装 MySQL
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull mysql:8.0
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create mysql-data-volume
 
 docker volume ls | grep mysql-data-volume
-`}</CodeBlock>
+```
 ## 运行 MySQL 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run --name mysql-vol-dev \
 -p 3306:3306 \
 -e MYSQL_ROOT_PASSWORD=YourSecurePassword \
 -v mysql-data-volume:/var/lib/mysql \
 --restart always \
 -d mysql:8.0
-`}</CodeBlock>
+```
 ## 命令行登录
  
-<CodeBlock language="bash">{`
+```bash
 docker exec -it mysql-vol-dev mysql -u root -p
-`}</CodeBlock>
+```
 
 OK, MySQL 安装完成了。
 
 # Docker 安装 Redis
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull redis
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create redis-data-volume
 
 docker volume ls | grep redis-data-volume
-`}</CodeBlock>
+```
 ## 运行 Redis 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run --name redis-vol-dev \
 -p 6379:6379 \
 -v redis-data-volume:/data \
 --restart always \
 -d redis
-`}</CodeBlock>
+```
 ## 命令行登录
-<CodeBlock language="bash">{`
+```bash
 docker exec -it redis-vol-dev redis-cli
  SET key value
  GET key
-`}</CodeBlock>
+```
 OK redis安装完成了。
 
 # Docker 安装 RabbitMQ
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull rabbitmq
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create rabbitmq-data-volume
 
 docker volume ls | grep rabbitmq-data-volume
-`}</CodeBlock>
+```
 ## 运行 RabbitMQ 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run --name rabbitmq-vol-dev \
 -p 15672:15672 \
 -p 5672:5672 \
 -v rabbitmq-data-volume:/var/lib/rabbitmq \
 --restart always \
 -d rabbitmq
-`}</CodeBlock>
+```
 ## 容器内插件是否启用
 加了这一步就可以网页访问了
 RabbitMQ 管理界面需要 rabbitmq_management 插件。你可以在容器里执行：
-<CodeBlock language="bash">{`
+```bash
 docker exec -it rabbitmq-vol-dev rabbitmq-plugins enable rabbitmq_management
 
 # 创建账户公网访问
 docker exec -it rabbitmq-vol-dev rabbitmqctl add_user admin 123456
 docker exec -it rabbitmq-vol-dev rabbitmqctl set_user_tags admin administrator
 docker exec -it rabbitmq-vol-dev rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
-
-
-`}</CodeBlock>
+```
 OK RabbitMQ安装完成了。
 
 # Docker 安装 Nacos
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
-docker pull nacos-registry.cn-hangzhou.cr.aliyuncs.com/nacos/nacos-server:v2.1.1 
-`}</CodeBlock>
+```bash
+docker pull nacos-registry.cn-hangzhou.cr.aliyuncs.com/nacos/nacos-server:v2.1.1
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create nacos-data-volume
 
 docker volume ls | grep nacos-data-volume
-`}</CodeBlock>
+```
 ## 运行 Nacos 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run --name nacos \
 -e MODE=standalone \
 -e JVM_XMS=128m \
@@ -191,49 +187,48 @@ docker run --name nacos \
 -e JVM_MMS=64m \
 -p 8848:8848 \
 -d nacos/nacos-server:v2.1.1
-
-`}</CodeBlock>
+```
 
 OK Nacos安装完成了。
 
 # Docker 安装 portainer
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull portainer/portainer
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create portainer-data-volume
 
 docker volume ls | grep portainer-data-volume
-`}</CodeBlock>
+```
 ## 运行 Portainer 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run -d -p 9000:9000 \
   --name portainer-vol-dev \
   --restart always \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v portainer-data-volume:/data \
   portainer/portainer-ce
-`}</CodeBlock>
+```
 
 OK Portainer安装完成了。
 
 # Docker 安装 minio
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull minio/minio
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create minio-data-volume
 
 docker volume ls | grep minio-data-volume
-`}</CodeBlock>
+```
 ## 运行 Minio 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run -d \
   --name minio-vol-dev \
   -p 9002:9000 \
@@ -242,30 +237,30 @@ docker run -d \
   -e MINIO_ROOT_USER=minioadmin \
   -e MINIO_ROOT_PASSWORD=minioadmin \
   minio/minio server /data --console-address ":9001"
-`}</CodeBlock>
+```
 
 OK Minio安装完成了。
 
 # Docker 安装 nginx
 
 ## 拉取镜像
-<CodeBlock language="bash">{`
+```bash
 docker pull nginx
-`}</CodeBlock>
+```
 ## 创建具名数据卷
-<CodeBlock language="bash">{`
+```bash
 docker volume create nginx-data-volume
 
 docker volume ls | grep nginx-data-volume
-`}</CodeBlock>
+```
 ## 运行 Nginx 容器并挂载 Volume
-<CodeBlock language="bash">{`
+```bash
 docker run --name nginx-vol-dev \
 -p 80:80 \
 -v nginx-data-volume:/usr/share/nginx/html \
 --restart always \
 -d nginx
-`}</CodeBlock>
+```
 
 OK Nginx安装完成了。
 

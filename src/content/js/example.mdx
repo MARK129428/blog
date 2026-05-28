@@ -1,282 +1,223 @@
 ---
-title: MDX 功能示例：完整指南
-date: 2025-01-15
+title: '优化后的写作示例：所有功能一览'
+date: 2026-05-28
 author: Gemini
-tags: ["MDX", "示例", "教程"]
-cover: /avatar.jpeg
-description: 这是一个完整的 MDX 示例文件，展示了所有可用的功能和组件。
+tags: ['MDX', '示例', '教程']
+description: '这篇文章展示了优化后所有可用的 MDX 功能——代码高亮、图表、提示框、卡片等。'
 ---
 
-# MDX 功能示例：完整指南
+# 优化后的写作体验
 
-欢迎阅读这个 MDX 示例文件！这里展示了所有可用的功能和组件。
+以前写代码块要用 JSX 组件包模板字面量，现在直接用**标准 Markdown 围栏语法**，简洁到不行。
 
-## 一、基础 Markdown 语法
+## 代码高亮（服务端 shiki，零客户端 JS）
 
-### 段落和文本格式
+### Bash
 
-这是普通段落。你可以使用 **粗体**、*斜体*、~~删除线~~ 和 `行内代码`。
+```bash
+#!/bin/bash
+# 启动所有 Docker 服务
+docker compose -f docker-compose.prod.yml up -d \
+  --scale worker=3 \
+  --timeout 120
 
-### 列表
+echo "部署完成！版本: $DEPLOY_VERSION"
+```
 
-#### 无序列表
+### TypeScript
 
-- 第一项
-- 第二项
-  - 嵌套项 1
-  - 嵌套项 2
-- 第三项
-
-#### 有序列表
-
-1. 第一步
-2. 第二步
-3. 第三步
-
-### 引用
-
-> 这是一段引用文字。可以用来突出重要信息或引用他人的话。
-> 
-> 可以包含多行内容。
-
----
-
-## 二、代码块
-
-### JavaScript 示例
-
-<CodeBlock language="javascript">{`
-// 这是一个 JavaScript 代码示例
-function greet(name) {
-  return \`Hello, \${name}!\`;
+```typescript
+interface ApiResponse<T> {
+  code: number;
+  data: T;
+  message: string;
 }
 
-const message = greet('World');
-console.log(message); // 输出: Hello, World!
-`}</CodeBlock>
+async function fetchUser(id: string): Promise<ApiResponse<User>> {
+  const res = await fetch(`/api/users/${id}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return res.json();
+}
+```
 
-### React 组件示例
+### Go
 
-<CodeBlock language="jsx">{`
-import React, { useState } from 'react';
+```go
+package main
 
-function Counter() {
-  const [count, setCount] = useState(0);
+import (
+    "fmt"
+    "net/http"
+)
 
-  return (
-    <div>
-      <p>当前计数: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        增加
-      </button>
-    </div>
-  );
+func handler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    fmt.Fprintf(w, `{"status": "ok", "path": "%s"}`, r.URL.Path)
 }
 
-export default Counter;
-`}</CodeBlock>
-
-### TypeScript 示例
-
-<CodeBlock language="typescript">{`
-interface User {
-  id: number;
-  name: string;
-  email: string;
+func main() {
+    http.HandleFunc("/", handler)
+    http.ListenAndServe(":8080", nil)
 }
+```
 
-function getUser(id: number): Promise<User> {
-  return fetch(\`/api/users/\${id}\`)
-    .then(res => res.json());
+### JSON
+
+```json
+{
+  "name": "blog-optimization",
+  "version": "2.0.0",
+  "scripts": {
+    "build": "next build",
+    "highlight": "shiki + rehype-pretty-code"
+  },
+  "performance": {
+    "codeHighlight": "server-side",
+    "clientJS": "0kb for code blocks"
+  }
 }
-`}</CodeBlock>
+```
 
----
+### Python
 
-## 三、提示框组件
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Article:
+    title: str
+    slug: str
+    content: str
+    author: str = "Gemini"
+    published: bool = False
+
+    def publish(self) -> None:
+        self.published = True
+        print(f"✓ 文章「{self.title}」已发布")
+```
+
+### SQL
+
+```sql
+-- 用户权限查询
+SELECT
+    u.id,
+    u.username,
+    r.name AS role_name,
+    COUNT(p.id) AS permission_count
+FROM sys_user u
+JOIN sys_user_role ur ON u.id = ur.user_id
+JOIN sys_role r ON ur.role_id = r.id
+JOIN sys_role_permission rp ON r.id = rp.role_id
+JOIN sys_permission p ON rp.permission_id = p.id
+WHERE u.status = 1
+GROUP BY u.id, u.username, r.name
+ORDER BY u.id;
+```
+
+## Mermaid 图表
+
+图表自动检测 mermaid 语言标记，按需懒加载（无图表的页面不加载 Mermaid 库）：
+
+```mermaid
+graph TB
+    A[用户请求] --> B{CDN / ISR 缓存?}
+    B -->|命中| C[返回静态 HTML]
+    B -->|过期| D[增量渲染 ISR]
+    D --> E[服务端编译 MDX]
+    E --> F[shiki 语法高亮]
+    F --> G[返回完整页面]
+    C --> H[客户端展示]
+    G --> H
+
+    style C fill:#22c55e,color:#fff
+    style F fill:#8b5cf6,color:#fff
+    style H fill:#3b82f6,color:#fff
+```
+
+```mermaid
+sequenceDiagram
+    actor 作者
+    作者->>脚本: pnpm create-mdx
+    脚本->>作者: 选分类 / 输标题
+    作者->>MDX: 写 Markdown
+    MDX->>构建: Next.js SSG
+    构建->>CDN: 静态 HTML
+    用户->>CDN: 访问页面
+    CDN->>用户: 秒开
+```
+
+## 提示框
 
 <Tip type="info">
-**信息提示：** 这是信息类型的提示框。可以用来提供额外的说明或背景信息。
+**信息：** 优化后代码高亮在服务端完成，客户端不再加载 react-syntax-highlighter（约 500KB）。
 </Tip>
 
 <Tip type="success">
-**成功提示：** 这是成功类型的提示框。可以用来显示操作成功的消息。
+**成功：** 所有页面通过 generateStaticParams 预渲染为静态 HTML，首屏加载大幅提升。
 </Tip>
 
 <Tip type="warning">
-**警告提示：** 这是警告类型的提示框。可以用来提醒用户注意某些事项。
+**注意：** Mermaid 图表仍需客户端渲染，但已改为懒加载——没有图表的页面不会加载 mermaid 库。
 </Tip>
 
 <Tip type="error">
-**错误提示：** 这是错误类型的提示框。可以用来显示错误信息或需要注意的问题。
+**提醒：** 不要在 fenced code block 内部写 Markdown 语法，代码块内的内容会原样输出。
 </Tip>
 
----
-
-## 四、卡片组件
+## 卡片组件
 
 <Card>
   <CardHeader>
-    <CardTitle>卡片标题</CardTitle>
-    <CardDescription>这是卡片的描述信息</CardDescription>
+    <CardTitle>性能优化成果</CardTitle>
+    <CardDescription>优化前后对比</CardDescription>
   </CardHeader>
   <CardContent>
-    <p>这是卡片的主要内容区域。你可以在这里放置任何内容。</p>
+
+| 指标 | 优化前 | 优化后 |
+|------|--------|--------|
+| 代码高亮 | 客户端约 500KB | 服务端 0KB |
+| Mermaid | 全量加载约 1MB | 按需懒加载 |
+| 页面渲染 | 动态 SSR | 静态 SSG + ISR |
+| 代码块写法 | JSX 组件 + 模板字面量 | Markdown 围栏语法 |
+
   </CardContent>
 </Card>
 
-### 多个卡片示例
+## 图片（点击放大）
 
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
-  <Card>
-    <CardHeader>
-      <CardTitle>功能一</CardTitle>
-    </CardHeader>
-    <CardContent>
-      这是第一个功能卡片
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>功能二</CardTitle>
-    </CardHeader>
-    <CardContent>
-      这是第二个功能卡片
-    </CardContent>
-  </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>功能三</CardTitle>
-    </CardHeader>
-    <CardContent>
-      这是第三个功能卡片
-    </CardContent>
-  </Card>
-</div>
-
----
-
-## 五、标签和徽章
-
-你可以使用标签来标记内容：
-
-<Badge>默认标签</Badge> <Badge variant="secondary">次要标签</Badge> <Badge variant="outline">轮廓标签</Badge>
-
----
-
-## 六、图片
-
-### 使用 Next.js Image 组件
-
-<Image 
-  src="/avatar.jpeg"
-  alt="示例图片"
-  width={600}
+<Image
+  src="/springboot/gemini.jpg"
+  alt="封面示例"
+  width={800}
   height={400}
 />
 
----
+## 表格
 
-## 七、表格
+| 组件 | 用途 | 客户端? |
+|------|------|---------|
+| 代码围栏块 | 代码高亮 | 否（服务端 shiki） |
+| Tip 组件 | 提示框 | 否（服务端） |
+| Mermaid 图表 | 流程图/时序图 | 是（懒加载） |
+| Image 组件 | 图片预览 | 是（Dialog 交互） |
+| Card 组件 | 卡片布局 | 否（服务端） |
+| Badge 组件 | 标签徽章 | 否（服务端） |
 
-| 功能 | 描述 | 状态 |
-|------|------|------|
-| 代码高亮 | 支持多种编程语言 | ✅ 已实现 |
-| 提示框 | 四种类型的提示框 | ✅ 已实现 |
-| 卡片组件 | 可嵌套的卡片布局 | ✅ 已实现 |
-| 目录导航 | 自动生成文章目录 | ✅ 已实现 |
-| 标签系统 | 文章标签展示 | ✅ 已实现 |
+## 标签
 
-### 复杂表格示例
-
-| 组件名称 | 用途 | 示例 |
-|---------|------|------|
-| `CodeBlock` | 代码高亮显示 | 支持语法高亮和行号 |
-| `Tip` | 提示信息 | 支持 info、success、warning、error 四种类型 |
-| `Card` | 卡片容器 | 包含 Header、Title、Description、Content 等子组件 |
-| `Badge` | 标签徽章 | 支持多种变体样式 |
-| `Separator` | 分隔线 | 用于内容分隔 |
-
----
-
-## 八、分隔线
-
-使用分隔线来分隔不同的内容区块：
-
-<Separator />
-
-这是分隔线后的内容。
-
----
-
-## 九、使用 Frontmatter 数据
-
-你可以在 MDX 内容中访问 frontmatter 数据：
-
-- 文章标题：**{frontmatter.title}**
-- 发布日期：**{frontmatter.date}**
-- 作者：**{frontmatter.author}**
-
----
-
-## 十、作者信息
-
-<AuthorBio name={frontmatter.author} date={frontmatter.date} />
-
----
-
-## 十一、嵌套标题示例
-
-### 三级标题示例
-
-这是三级标题下的内容。
-
-#### 四级标题示例
-
-这是四级标题下的内容。
-
-### 另一个三级标题
-
-更多内容...
-
----
-
-## 十二、混合使用
-
-你可以将多个组件组合使用：
-
-<Tip type="info">
-**提示：** 在卡片中使用代码块：
-</Tip>
-
-<Card>
-  <CardHeader>
-    <CardTitle>代码示例卡片</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <CodeBlock language="javascript">{`
-const example = '这是一个在卡片中的代码示例';
-console.log(example);
-`}</CodeBlock>
-  </CardContent>
-</Card>
-
----
+<Badge>默认</Badge> <Badge variant="secondary">次要</Badge> <Badge variant="outline">轮廓</Badge>
 
 ## 总结
 
-这个示例文件展示了 MDX 的所有功能：
+优化后写文章只需要知道这四件事：
 
-1. ✅ 基础 Markdown 语法
-2. ✅ 代码高亮（CodeBlock）
-3. ✅ 提示框（Tip）
-4. ✅ 卡片组件（Card）
-5. ✅ 标签（Badge）
-6. ✅ 图片（Image）
-7. ✅ 表格
-8. ✅ 分隔线（Separator）
-9. ✅ 作者信息（AuthorBio）
-10. ✅ 自动目录生成
+1. **代码块** — 用三个反引号加语言名开头，三个反引号结尾，中间直接写代码
+2. **图表** — 三个反引号加 mermaid，中间写 Mermaid 语法
+3. **提示框** — 用 Tip 组件，type 可选 info / success / warning / error
+4. **图片** — 用 Image 组件，src / alt / width / height 属性
 
-希望这个示例对你有帮助！
+简单直接，不再憋屈。
 
+<AuthorBio name="Gemini" date="2026-05-28" />

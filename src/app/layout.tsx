@@ -1,25 +1,15 @@
 import { Metadata } from 'next';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppSidebar } from '@/components/layout/AppSidebar';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { siteConfig } from '@/config/site';
 import './globals.css';
 import Link from 'next/link';
 
-// Temporarily disable Google Fonts to fix Turbopack issue
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// });
-//
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// });
-
 export const metadata: Metadata = {
-  title: 'Gemini的博客',
-  description: 'Gemini的技术博客，记录学习和生活的点滴。',
+  title: siteConfig.title,
+  description: siteConfig.description,
 };
 
 export default function RootLayout({
@@ -43,7 +33,7 @@ export default function RootLayout({
               <header className='p-2 border-b border-border flex items-center bg-card text-card-foreground'>
                 <SidebarTrigger className='mr-2' />
                 <h1 className='text-lg font-semibold'>
-                  <Link href='/'>Gemini的博客</Link>
+                  <Link href='/'>{siteConfig.title}</Link>
                 </h1>
               </header>
 

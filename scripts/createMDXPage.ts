@@ -4,72 +4,39 @@ import inquirer from 'inquirer';
 import { pinyin } from 'pinyin-pro';
 
 const contentRoot = path.join(process.cwd(), 'src/content');
-const appRoot = path.join(process.cwd(), 'src/app');
-const author = 'Your Name';
+const author = 'Gemini';
 
-// 首字母大写
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// 获取当前时间，格式 yyyy-mm-dd hh:mm:ss
-function getFormattedDate() {
+function getFormattedDate(): string {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  const hh = String(now.getHours()).padStart(2, '0');
-  const min = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  return `${yyyy}-${mm}-${dd}`;
 }
 
-// 中文名转拼音 slug
-function toSlug(str: string) {
+function toSlug(str: string): string {
   return str
     .trim()
     .split('')
     .map((char) =>
-      /[\u4e00-\u9fa5]/.test(char) ? pinyin(char, { toneType: 'none' }) : char,
+      /[一-龥]/.test(char) ? pinyin(char, { toneType: 'none' }) : char,
     )
     .join('')
-    .replace(/[\s_]+/g, '-') // 空格/下划线 → '-'
-    .replace(/[^\w-]+/g, '') // 移除特殊字符
-    .replace(/-+/g, '-') // 多个 '-' 合并
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/-+/g, '-')
     .toLowerCase()
     .trim();
 }
 
-// slug 转 PascalCase 组件名
-function slugToComponentName(slug: string) {
-  return slug
-    .split(/[-_ ]+/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
-}
-
-// 渲染模板
-function renderTemplate(
-  templatePath: string,
-  variables: Record<string, string>,
-) {
-  let content = fs.readFileSync(templatePath, 'utf-8');
-  for (const key in variables) {
-    const re = new RegExp(`{{${key}}}`, 'g');
-    content = content.replace(re, variables[key]);
-  }
-  return content;
-}
-
 async function main() {
-  // 获取模块列表
   const modules = fs
     .readdirSync(contentRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
 
   if (!modules.length) {
-    console.error('没有找到模块目录');
+    console.error('没有找到模块目录，请先在 src/content/ 下创建分类目录');
     process.exit(1);
   }
 
@@ -77,7 +44,7 @@ async function main() {
     {
       type: 'list',
       name: 'moduleName',
-      message: '请选择模块:',
+      message: '请选择分类:',
       choices: modules,
     },
   ]);
@@ -86,72 +53,41 @@ async function main() {
     {
       type: 'input',
       name: 'pageName',
-      message: '请输入文章名称（支持中文）:',
-      validate: (input) => input.trim() !== '' || '文章名称不能为空',
+      message: '请输入文章标题（支持中文）:',
+      validate: (input: string) => input.trim() !== '' || '文章标题不能为空',
     },
   ]);
 
-  const formattedDate = getFormattedDate();
   const slug = toSlug(pageName);
-  const componentName = slugToComponentName(slug);
-  const moduleNameSafe = moduleName.toLowerCase();
+  const date = getFormattedDate();
+  const moduleDir = path.join(contentRoot, moduleName.toLowerCase());
+  const mdxPath = path.join(moduleDir, `${slug}.mdx`);
 
-  // -------- 生成 MDX --------
-  const mdxDir = path.join(contentRoot, moduleNameSafe);
-  if (!fs.existsSync(mdxDir)) fs.mkdirSync(mdxDir, { recursive: true });
-
-  const mdxPath = path.join(mdxDir, `${slug}.mdx`);
-  const mdxTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/mdx.template',
-  );
-
-  const mdxContent = renderTemplate(mdxTemplatePath, {
-    title: pageName,
-    date: formattedDate,
-    author,
-  });
-  fs.writeFileSync(mdxPath, mdxContent, 'utf-8');
-  console.log(`生成 MDX 文件: ${mdxPath}`);
-
-  // -------- 生成 page.tsx --------
-  const pageDir = path.join(appRoot, moduleNameSafe, slug);
-  if (fs.existsSync(pageDir))
-    fs.rmSync(pageDir, { recursive: true, force: true });
-  fs.mkdirSync(pageDir, { recursive: true });
-
-  const pageTsxPath = path.join(pageDir, 'page.tsx');
-  const pageTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/page.template',
-  );
-
-  const pageTsxContent = renderTemplate(pageTemplatePath, {
-    title: componentName,
-    moduleNameSafe,
-    slug,
-  });
-  fs.writeFileSync(pageTsxPath, pageTsxContent, 'utf-8');
-  console.log(`生成 page.tsx: ${pageTsxPath}`);
-
-  // -------- 生成模块首页 page.tsx --------
-  const pageIndexDir = path.join(appRoot, moduleNameSafe);
-  const pageIndexPath = path.join(pageIndexDir, 'page.tsx');
-  const pageIndexTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/moduleIndex.template',
-  );
-
-  if (!fs.existsSync(pageIndexPath)) {
-    const pageIndexContent = renderTemplate(pageIndexTemplatePath, {
-      module: capitalize(moduleNameSafe),
-      moduleNameSafe,
-    });
-    fs.writeFileSync(pageIndexPath, pageIndexContent, 'utf-8');
-    console.log(`生成模块首页: ${pageIndexPath}`);
+  if (fs.existsSync(mdxPath)) {
+    console.error(`文件已存在: ${mdxPath}`);
+    process.exit(1);
   }
 
-  console.log('页面生成完成！');
+  const frontmatter = [
+    '---',
+    `title: "${pageName}"`,
+    `date: ${date}`,
+    `author: ${author}`,
+    'tags: []',
+    `description: "${pageName}"`,
+    '---',
+    '',
+    `# ${pageName}`,
+    '',
+    '开始写作...',
+    '',
+  ].join('\n');
+
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(mdxPath, frontmatter, 'utf-8');
+
+  console.log(`已创建: ${mdxPath}`);
+  console.log(`访问路径: /${moduleName.toLowerCase()}/${slug}`);
 }
 
 main();

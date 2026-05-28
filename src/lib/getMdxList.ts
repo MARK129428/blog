@@ -1,18 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-export interface MdxFrontmatter {
-  title: string;
-  description?: string;
-  date?: string;
-  author?: string;
-  cover?: string;
-  tags?: string[];
-}
-
-export interface MdxPostMeta extends MdxFrontmatter {
-  slug: string;
-}
+import type { MdxFrontmatter, MdxPostMeta } from '@/types/mdx';
 
 export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
   const dir = path.join(process.cwd(), 'src/content', catalog);

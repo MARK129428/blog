@@ -1,5 +1,3 @@
-'use client';
-
 interface AuthorBioProps {
   name?: string;
   date?: string;

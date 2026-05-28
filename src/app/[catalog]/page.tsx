@@ -11,6 +11,21 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Tag } from 'lucide-react';
+import fs from 'fs';
+import path from 'path';
+
+export const revalidate = 3600;
+
+export function generateStaticParams() {
+  const contentDir = path.join(process.cwd(), 'src/content');
+  if (!fs.existsSync(contentDir)) return [];
+
+  const catalogs = fs.readdirSync(contentDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => ({ catalog: d.name }));
+
+  return catalogs;
+}
 
 export default async function CatalogPage({
   params,

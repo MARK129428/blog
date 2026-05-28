@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import menuGroups from '@/lib/menuGroups';
+import menuGroups from '@/config/menu';
 import Image from 'next/image';
 
 export function AppSidebar() {

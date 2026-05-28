@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { MdxFrontmatter } from './getMdxList';
+import type { MdxFrontmatter } from '@/types/mdx';
 import { extractToc, TocItem } from './extractToc';
 
 export interface MdxPost {
@@ -43,14 +43,8 @@ export async function getMdxContent(
     date: dateStr,
   };
 
-  // 移除 MDX 文件中的 import 语句和注释，因为这些组件会通过 components prop 传递
-  const cleanedContent = content
-    .replace(/^\/\/.*$/gm, '') // 移除单行注释
-    .replace(/^import\s+.*?from\s+['"].*?['"];?\s*$/gm, '') // 移除 import 语句
-    .trim();
-
   // 提取目录
-  const toc = extractToc(cleanedContent);
+  const toc = extractToc(content);
 
   // 创建标题文本到 ID 的映射（处理重复标题）
   // 使用数组存储，因为可能有多个相同文本的标题
@@ -76,7 +70,7 @@ export async function getMdxContent(
 
   return {
     meta,
-    content: cleanedContent,
+    content: content.trim(),
     toc,
     headingIdMap: headingIdMapObj,
   };

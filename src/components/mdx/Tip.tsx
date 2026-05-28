@@ -1,5 +1,3 @@
-'use client';
-
 import { AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface TipProps {
