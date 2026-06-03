@@ -3,12 +3,15 @@ import path from 'path';
 import matter from 'gray-matter';
 import type { MdxFrontmatter } from '@/types/mdx';
 import { extractToc, TocItem } from './extractToc';
+import { parseDate } from './content';
+import { estimateReadingTime } from './readingTime';
 
 export interface MdxPost {
   meta: MdxFrontmatter;
   content: string;
   toc: TocItem[];
-  headingIdMap: Record<string, string[]>; // 原始文本到实际 ID 数组的映射（处理重复标题）
+  headingIdMap: Record<string, string[]>;
+  readingTime: number;
 }
 
 export async function getMdxContent(
@@ -29,18 +32,9 @@ export async function getMdxContent(
   const file = fs.readFileSync(filePath, 'utf8');
   const { data, content } = matter(file);
 
-  // 确保日期是字符串格式
-  // gray-matter 可能返回 Date 对象，需要先检查
-  const rawDate = data.date;
-  const dateStr = rawDate
-    ? rawDate instanceof Date
-      ? rawDate.toISOString().split('T')[0]
-      : String(rawDate)
-    : undefined;
-
   const meta: MdxFrontmatter = {
     ...(data as MdxFrontmatter),
-    date: dateStr,
+    date: parseDate(data.date),
   };
 
   // 提取目录
@@ -73,5 +67,6 @@ export async function getMdxContent(
     content: content.trim(),
     toc,
     headingIdMap: headingIdMapObj,
+    readingTime: estimateReadingTime(content),
   };
 }

@@ -10,4 +10,6 @@ export interface MdxFrontmatter {
 
 export interface MdxPostMeta extends MdxFrontmatter {
   slug: string;
+  catalog: string;
+  readingTime?: number;
 }

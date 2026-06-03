@@ -3,6 +3,7 @@ import { Tip } from '@/components/mdx/Tip';
 import { MdxImage } from '@/components/mdx/MdxImage';
 import { AuthorBio } from '@/components/article/AuthorBio';
 import { DynamicMermaid } from '@/components/mdx/DynamicMermaid';
+import { CopyButton } from '@/components/mdx/CopyButton';
 import {
   Card,
   CardContent,
@@ -59,6 +60,7 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
     Tip,
     AuthorBio,
     Mermaid: DynamicMermaid,
+    mermaid: DynamicMermaid,
     Image: MdxImage,
     Card,
     CardHeader,
@@ -99,24 +101,24 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
     ),
     hr: () => <Separator className='my-8' />,
     table: (props: ComponentProps<'table'>) => (
-      <div className='my-6 overflow-x-auto'>
-        <table className='w-full border-collapse border border-border rounded-lg' {...props} />
+      <div className='my-6 overflow-x-auto not-prose'>
+        <table className='w-full border-collapse border border-gray-300 dark:border-gray-600 rounded-lg' {...props} />
       </div>
     ),
     thead: (props: ComponentProps<'thead'>) => (
-      <thead className='bg-muted' {...props} />
+      <thead className='bg-gray-100 dark:bg-gray-800' {...props} />
     ),
     tbody: (props: ComponentProps<'tbody'>) => (
-      <tbody {...props} />
+      <tbody className='divide-y divide-gray-200 dark:divide-gray-700' {...props} />
     ),
     tr: (props: ComponentProps<'tr'>) => (
-      <tr className='border-b border-border hover:bg-muted/50 transition-colors' {...props} />
+      <tr className='border-b border-gray-200 dark:border-gray-700 hover:bg-muted/50 transition-colors' {...props} />
     ),
     th: (props: ComponentProps<'th'>) => (
-      <th className='border border-border px-4 py-2 text-left font-semibold' {...props} />
+      <th className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-left font-semibold text-foreground bg-gray-50 dark:bg-gray-800' {...props} />
     ),
     td: (props: ComponentProps<'td'>) => (
-      <td className='border border-border px-4 py-2' {...props} />
+      <td className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-foreground' {...props} />
     ),
     pre: (props: PreProps) => {
       const codeElement = props.children as React.ReactElement<CodeElementProps>;
@@ -129,11 +131,30 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
       ) {
         return <DynamicMermaid>{codeElement.props.children}</DynamicMermaid>;
       }
+
+      // Extract language label and code text
+      let lang = '';
+      let codeText = '';
+      if (codeElement && React.isValidElement(codeElement) && codeElement.props) {
+        const cls = codeElement.props.className || '';
+        const match = cls.match(/language-(\w+)/);
+        if (match) lang = match[1];
+        codeText = getTextContent(codeElement.props.children);
+      }
+
       return (
-        <pre
-          className='my-4 overflow-x-auto rounded-lg border border-border bg-[#0d1117] p-0 [&>code]:block [&>code]:p-4'
-          {...props}
-        />
+        <div className='my-4 relative group'>
+          {lang && (
+            <span className='absolute top-2 left-4 z-10 text-xs text-gray-400 font-mono'>
+              {lang}
+            </span>
+          )}
+          <CopyButton code={codeText} />
+          <pre
+            className='overflow-x-auto rounded-lg border border-border bg-[#0d1117] p-0 [&>code]:block [&>code]:p-4 [&>code]:pt-8'
+            {...props}
+          />
+        </div>
       );
     },
     figure: (props: ComponentProps<'figure'>) => (

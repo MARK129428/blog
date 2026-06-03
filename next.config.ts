@@ -1,14 +1,7 @@
-// next.config.ts
-import withMDX from '@next/mdx';
 import type { NextConfig } from 'next';
-import path from 'path';
-
-const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
 
   images: {
     remotePatterns: [
@@ -34,16 +27,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
-  webpack(config) {
-    // 路径别名
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      '@': path.resolve(__dirname, 'src'),
-    };
-
-    return config;
-  },
 };
 
-export default withMDX({ extension: /\.mdx?$/ })(nextConfig);
+export default nextConfig;

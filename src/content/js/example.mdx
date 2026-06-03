@@ -194,6 +194,36 @@ sequenceDiagram
   height={400}
 />
 
+## LaTeX 数学公式
+
+行内公式：$E = mc^2$，$\alpha + \beta = \gamma$
+
+块级公式：
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+$$
+\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y
+\end{bmatrix}
+=
+\begin{bmatrix}
+ax + by \\
+cx + dy
+\end{bmatrix}
+$$
+
+$$
+f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n
+$$
+
 ## 表格
 
 | 组件 | 用途 | 客户端? |
@@ -211,12 +241,13 @@ sequenceDiagram
 
 ## 总结
 
-优化后写文章只需要知道这四件事：
+优化后写文章只需要知道这五件事：
 
 1. **代码块** — 用三个反引号加语言名开头，三个反引号结尾，中间直接写代码
 2. **图表** — 三个反引号加 mermaid，中间写 Mermaid 语法
-3. **提示框** — 用 Tip 组件，type 可选 info / success / warning / error
-4. **图片** — 用 Image 组件，src / alt / width / height 属性
+3. **公式** — 用 `$...$` 写行内公式，`$$...$$` 写块级公式
+4. **提示框** — 用 Tip 组件，type 可选 info / success / warning / error
+5. **图片** — 用 Image 组件，src / alt / width / height 属性
 
 简单直接，不再憋屈。
 

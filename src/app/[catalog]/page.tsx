@@ -1,131 +1,75 @@
+import { Metadata } from 'next';
 import { getMdxList } from '@/lib/getMdxList';
-import Link from 'next/link';
-import Image from 'next/image';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Tag } from 'lucide-react';
-import fs from 'fs';
-import path from 'path';
+import { PostCard } from '@/components/home/PostCard';
+import { Pagination } from '@/components/Pagination';
+import { Card } from '@/components/ui/card';
+import { getCatalogNames } from '@/lib/content';
+import { getCatalogLabel } from '@/config/catalogs';
+import { siteConfig } from '@/config/site';
 
 export const revalidate = 3600;
+const POSTS_PER_PAGE = 9;
 
 export function generateStaticParams() {
-  const contentDir = path.join(process.cwd(), 'src/content');
-  if (!fs.existsSync(contentDir)) return [];
+  return getCatalogNames().map((catalog) => ({ catalog }));
+}
 
-  const catalogs = fs.readdirSync(contentDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => ({ catalog: d.name }));
-
-  return catalogs;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ catalog: string }>;
+}): Promise<Metadata> {
+  const { catalog } = await params;
+  return {
+    title: `${getCatalogLabel(catalog)} - ${siteConfig.title}`,
+    description: `${getCatalogLabel(catalog)}分类下的技术文章`,
+  };
 }
 
 export default async function CatalogPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ catalog: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { catalog } = await params;
+  const { page: pageStr } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageStr || '1', 10) || 1);
+
   const posts = await getMdxList(catalog);
+  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+  const pagedPosts = posts.slice(
+    (currentPage - 1) * POSTS_PER_PAGE,
+    currentPage * POSTS_PER_PAGE,
+  );
 
   return (
     <main className='p-6 md:p-10'>
       <div className='mb-8'>
-        <h1 className='text-4xl font-bold mb-2'>分類：{catalog}</h1>
-        <p className='text-muted-foreground'>
-          共 {posts.length} 篇文章
-        </p>
+        <h1 className='text-4xl font-bold mb-2'>
+          {getCatalogLabel(catalog)}
+        </h1>
+        <p className='text-muted-foreground'>共 {posts.length} 篇文章</p>
       </div>
 
       {posts.length === 0 && (
         <Card className='p-12 text-center'>
-          <p className='text-muted-foreground'>沒有文章。</p>
+          <p className='text-muted-foreground'>暂无文章。</p>
         </Card>
       )}
 
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {posts.map((post) => (
-          <Link
-            key={post.slug}
-            href={`/${catalog}/${post.slug}`}
-            className='block h-full'
-          >
-            <Card className='h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group'>
-              {/* 头图 */}
-              {post.cover && (
-                <div className='relative w-full h-48 overflow-hidden bg-muted'>
-                  <Image
-                    src={post.cover}
-                    alt={post.title}
-                    fill
-                    className='object-cover group-hover:scale-110 transition-transform duration-500'
-                    sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                    unoptimized={
-                      post.cover.startsWith('/') &&
-                      !post.cover.startsWith('//')
-                    }
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
-                </div>
-              )}
-
-              <CardHeader className='flex-1'>
-                <div className='flex items-start justify-between gap-2 mb-2'>
-                  <CardTitle className='text-xl line-clamp-2 group-hover:text-primary transition-colors'>
-                    {post.title}
-                  </CardTitle>
-                </div>
-                {post.description && (
-                  <CardDescription className='line-clamp-2'>
-                    {post.description}
-                  </CardDescription>
-                )}
-              </CardHeader>
-
-              <CardContent className='flex-1'>
-                {post.tags && post.tags.length > 0 && (
-                  <div className='flex flex-wrap gap-2 mb-4'>
-                    {post.tags.slice(0, 3).map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant='secondary'
-                        className='text-xs'
-                      >
-                        <Tag className='w-3 h-3 mr-1' />
-                        {tag}
-                      </Badge>
-                    ))}
-                    {post.tags.length > 3 && (
-                      <Badge variant='outline' className='text-xs'>
-                        +{post.tags.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-
-              <CardFooter className='flex items-center justify-between text-sm text-muted-foreground border-t pt-4'>
-                {post.date && (
-                  <div className='flex items-center gap-2'>
-                    <Calendar className='w-4 h-4' />
-                    <span>{String(post.date)}</span>
-                  </div>
-                )}
-                {post.author && (
-                  <span className='text-xs'>{post.author}</span>
-                )}
-              </CardFooter>
-            </Card>
-          </Link>
+        {pagedPosts.map((post) => (
+          <PostCard key={post.slug} post={post} />
         ))}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        basePath={`/${catalog}`}
+      />
     </main>
   );
 }
