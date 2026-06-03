@@ -12,11 +12,14 @@ export function parseDate(rawDate: unknown): string | undefined {
   return String(rawDate);
 }
 
+// Directories to exclude from article catalogs
+const EXCLUDED_DIRS = new Set(['thoughts']);
+
 export function getCatalogNames(): string[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   return fs
     .readdirSync(CONTENT_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
+    .filter((d) => d.isDirectory() && !EXCLUDED_DIRS.has(d.name))
     .map((d) => d.name);
 }
 
