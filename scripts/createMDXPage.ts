@@ -4,154 +4,206 @@ import inquirer from 'inquirer';
 import { pinyin } from 'pinyin-pro';
 
 const contentRoot = path.join(process.cwd(), 'src/content');
-const appRoot = path.join(process.cwd(), 'src/app');
-const author = 'Your Name';
+const author = 'Gemini';
 
-// 首字母大写
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// 获取当前时间，格式 yyyy-mm-dd hh:mm:ss
-function getFormattedDate() {
+function getFormattedDate(): string {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  const hh = String(now.getHours()).padStart(2, '0');
-  const min = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  return `${yyyy}-${mm}-${dd}`;
 }
 
-// 中文名转拼音 slug
-function toSlug(str: string) {
+function toSlug(str: string): string {
   return str
     .trim()
     .split('')
     .map((char) =>
-      /[\u4e00-\u9fa5]/.test(char) ? pinyin(char, { toneType: 'none' }) : char,
+      /[一-龥]/.test(char) ? pinyin(char, { toneType: 'none' }) : char,
     )
     .join('')
-    .replace(/[\s_]+/g, '-') // 空格/下划线 → '-'
-    .replace(/[^\w-]+/g, '') // 移除特殊字符
-    .replace(/-+/g, '-') // 多个 '-' 合并
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/-+/g, '-')
     .toLowerCase()
     .trim();
 }
 
-// slug 转 PascalCase 组件名
-function slugToComponentName(slug: string) {
-  return slug
-    .split(/[-_ ]+/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
+// Gather all existing tags from all MDX files
+function getExistingTags(): string[] {
+  const tagSet = new Set<string>();
+  if (!fs.existsSync(contentRoot)) return [];
+
+  const catalogs = fs
+    .readdirSync(contentRoot, { withFileTypes: true })
+    .filter((d) => d.isDirectory());
+
+  for (const cat of catalogs) {
+    const dir = path.join(contentRoot, cat.name);
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'));
+    for (const file of files) {
+      const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
+      const match = raw.match(/^tags:\s*\[(.+)\]$/m);
+      if (match) {
+        const tags = match[1]
+          .split(',')
+          .map((t) => t.trim().replace(/['"]/g, ''));
+        tags.forEach((t) => t && tagSet.add(t));
+      }
+    }
+  }
+  return Array.from(tagSet).sort();
 }
 
-// 渲染模板
-function renderTemplate(
-  templatePath: string,
-  variables: Record<string, string>,
-) {
-  let content = fs.readFileSync(templatePath, 'utf-8');
-  for (const key in variables) {
-    const re = new RegExp(`{{${key}}}`, 'g');
-    content = content.replace(re, variables[key]);
+function getExistingCovers(): string[] {
+  const publicDir = path.join(process.cwd(), 'public');
+  const covers: string[] = [];
+
+  function walk(dir: string, prefix: string) {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (e.isDirectory()) {
+        walk(path.join(dir, e.name), `${prefix}${e.name}/`);
+      } else if (/\.(png|jpe?g|gif|webp|svg)$/i.test(e.name)) {
+        covers.push(`/${prefix}${e.name}`);
+      }
+    }
   }
-  return content;
+  walk(publicDir, '');
+  return covers;
 }
 
 async function main() {
-  // 获取模块列表
   const modules = fs
     .readdirSync(contentRoot, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
 
   if (!modules.length) {
-    console.error('没有找到模块目录');
+    console.error('请先在 src/content/ 下创建分类目录');
     process.exit(1);
   }
 
+  // Step 1: select catalog
   const { moduleName } = await inquirer.prompt([
     {
       type: 'list',
       name: 'moduleName',
-      message: '请选择模块:',
+      message: '选择分类:',
       choices: modules,
     },
   ]);
 
+  // Step 2: enter title
   const { pageName } = await inquirer.prompt([
     {
       type: 'input',
       name: 'pageName',
-      message: '请输入文章名称（支持中文）:',
-      validate: (input) => input.trim() !== '' || '文章名称不能为空',
+      message: '文章标题（中文自动转拼音）:',
+      validate: (input: string) => input.trim() !== '' || '标题不能为空',
     },
   ]);
 
-  const formattedDate = getFormattedDate();
   const slug = toSlug(pageName);
-  const componentName = slugToComponentName(slug);
-  const moduleNameSafe = moduleName.toLowerCase();
+  const date = getFormattedDate();
 
-  // -------- 生成 MDX --------
-  const mdxDir = path.join(contentRoot, moduleNameSafe);
-  if (!fs.existsSync(mdxDir)) fs.mkdirSync(mdxDir, { recursive: true });
+  // Step 3: select tags from existing + add custom
+  const existingTags = getExistingTags();
+  const { selectedTags } = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'selectedTags',
+      message: '选择已有标签（空格选择，回车确认）:',
+      choices: existingTags,
+    },
+  ]);
 
-  const mdxPath = path.join(mdxDir, `${slug}.mdx`);
-  const mdxTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/mdx.template',
-  );
+  const { customTags } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'customTags',
+      message: '添加新标签（逗号分隔，可选）:',
+      default: '',
+    },
+  ]);
 
-  const mdxContent = renderTemplate(mdxTemplatePath, {
-    title: pageName,
-    date: formattedDate,
-    author,
-  });
-  fs.writeFileSync(mdxPath, mdxContent, 'utf-8');
-  console.log(`生成 MDX 文件: ${mdxPath}`);
+  const allTags = [
+    ...(selectedTags || []),
+    ...(customTags
+      ? customTags.split(',').map((t: string) => t.trim()).filter(Boolean)
+      : []),
+  ];
 
-  // -------- 生成 page.tsx --------
-  const pageDir = path.join(appRoot, moduleNameSafe, slug);
-  if (fs.existsSync(pageDir))
-    fs.rmSync(pageDir, { recursive: true, force: true });
-  fs.mkdirSync(pageDir, { recursive: true });
+  // Step 4: cover image (optional)
+  const covers = getExistingCovers();
+  const coverChoices = [{ name: '不使用头图', value: '' }, ...covers.map((c) => ({ name: c, value: c }))];
+  const { cover } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'cover',
+      message: '选择封面图片（可选）:',
+      choices: coverChoices,
+      default: '',
+    },
+  ]);
 
-  const pageTsxPath = path.join(pageDir, 'page.tsx');
-  const pageTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/page.template',
-  );
+  // Step 5: description
+  const { description } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'description',
+      message: '文章摘要:',
+      default: pageName,
+    },
+  ]);
 
-  const pageTsxContent = renderTemplate(pageTemplatePath, {
-    title: componentName,
-    moduleNameSafe,
-    slug,
-  });
-  fs.writeFileSync(pageTsxPath, pageTsxContent, 'utf-8');
-  console.log(`生成 page.tsx: ${pageTsxPath}`);
+  // Step 6: featured
+  const { isFeatured } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'isFeatured',
+      message: '设为精选文章？',
+      default: false,
+    },
+  ]);
 
-  // -------- 生成模块首页 page.tsx --------
-  const pageIndexDir = path.join(appRoot, moduleNameSafe);
-  const pageIndexPath = path.join(pageIndexDir, 'page.tsx');
-  const pageIndexTemplatePath = path.join(
-    process.cwd(),
-    'scripts/templates/moduleIndex.template',
-  );
+  const moduleDir = path.join(contentRoot, moduleName.toLowerCase());
+  const mdxPath = path.join(moduleDir, `${slug}.mdx`);
 
-  if (!fs.existsSync(pageIndexPath)) {
-    const pageIndexContent = renderTemplate(pageIndexTemplatePath, {
-      module: capitalize(moduleNameSafe),
-      moduleNameSafe,
-    });
-    fs.writeFileSync(pageIndexPath, pageIndexContent, 'utf-8');
-    console.log(`生成模块首页: ${pageIndexPath}`);
+  if (fs.existsSync(mdxPath)) {
+    console.error(`文件已存在: ${mdxPath}`);
+    process.exit(1);
   }
 
-  console.log('页面生成完成！');
+  const tagsYaml =
+    allTags.length > 0
+      ? `tags: [${allTags.map((t: string) => `"${t}"`).join(', ')}]`
+      : 'tags: []';
+
+  const frontmatter = [
+    '---',
+    `title: "${pageName}"`,
+    `date: ${date}`,
+    `author: ${author}`,
+    tagsYaml,
+    `description: "${description}"`,
+    ...(cover ? [`cover: "${cover}"`] : []),
+    `isFeatured: ${isFeatured}`,
+    '---',
+    '',
+    '',
+  ].join('\n');
+
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(mdxPath, frontmatter, 'utf-8');
+
+  console.log(`\n 已创建: ${mdxPath}`);
+  console.log(` 访问: /${moduleName.toLowerCase()}/${slug}`);
+  if (cover) console.log(` 封面: ${cover}`);
+  if (allTags.length) console.log(` 标签: ${allTags.join(', ')}`);
 }
 
 main();

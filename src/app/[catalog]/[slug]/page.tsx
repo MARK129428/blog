@@ -1,212 +1,64 @@
+import Link from 'next/link';
+import { Metadata } from 'next';
 import { getMdxContent } from '@/lib/getMdxContent';
+import { getMdxList } from '@/lib/getMdxList';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { CodeBlock } from '@/components/CodeBlock';
-import { Tip } from '@/components/Tip';
-import { AuthorBio } from '@/components/AuthorBio';
-import { TableOfContents } from '@/components/TableOfContents';
-import { MdxImage } from '@/components/MdxImage';
-import { Mermaid } from '@/components/Mermaid';
+import { createHeadingComponents } from '@/components/mdx/mdx-headings';
+import { TableOfContents } from '@/components/article/TableOfContents';
+import { MobileTOC } from '@/components/article/MobileTOC';
+import { RelatedPosts } from '@/components/article/RelatedPosts';
+import { Giscus } from '@/components/article/Giscus';
+import { ReadingProgress } from '@/components/ReadingProgress';
 import Image from 'next/image';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from 'lucide-react';
-import { generateId } from '@/lib/extractToc';
-import { getTextContent } from '@/lib/getTextContent';
-import type { ComponentProps } from 'react';
-import React from 'react';
+import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import rehypePrettyCode from 'rehype-pretty-code';
+import { rehypePrettyCodeOptions } from '@/lib/rehypePrettyCode';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import { rehypePreMermaid } from '@/lib/rehypeMermaid';
+import { getAllPostSlugs, getAllPosts } from '@/lib/content';
+import { siteConfig } from '@/config/site';
+import { formatDate } from '@/lib/formatDate';
+import 'katex/dist/katex.min.css';
 
-type HeadingProps = ComponentProps<'h1'>;
-type ParagraphProps = ComponentProps<'p'>;
-type UnorderedListProps = ComponentProps<'ul'>;
-type OrderedListProps = ComponentProps<'ol'>;
-type ListItemProps = ComponentProps<'li'>;
-type BlockquoteProps = ComponentProps<'blockquote'>;
-type CodeProps = ComponentProps<'code'>;
-type AnchorProps = ComponentProps<'a'>;
-type PreProps = ComponentProps<'pre'>;
+export const revalidate = 3600;
 
-// 定义代码元素的属性接口
-interface CodeElementProps {
-  children: string;
-  className?: string;
+export async function generateStaticParams() {
+  return getAllPostSlugs();
 }
 
-// 创建标题组件工厂函数，使用 headingIdMap
-const createHeadingComponents = (
-  headingIdMap: Record<string, string[]>
-) => {
-  // 用于跟踪每个标题文本出现的次数
-  const headingCounters = new Map<string, number>();
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ catalog: string; slug: string }>;
+}): Promise<Metadata> {
+  const { catalog, slug } = await params;
+  const { meta } = await getMdxContent(catalog, slug);
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn';
 
   return {
-  CodeBlock,
-  Tip,
-  AuthorBio,
-  Mermaid, // Mermaid图表支持
-  Image: MdxImage, // 使用可点击放大的图片组件
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  Badge,
-  Separator,
-  h1: (props: HeadingProps) => {
-    const text = getTextContent(props.children);
-    let id: string | undefined;
-    if (text) {
-      const ids = headingIdMap[text];
-      if (ids && ids.length > 0) {
-        const count = headingCounters.get(text) || 0;
-        id = ids[count] || ids[0];
-        headingCounters.set(text, count + 1);
-      } else {
-        id = generateId(text);
-      }
-    }
-    return (
-      <h1
-        id={id}
-        className='text-4xl font-bold mt-8 mb-4 scroll-mt-20'
-        {...props}
-      />
-    );
-  },
-  h2: (props: HeadingProps) => {
-    const text = getTextContent(props.children);
-    let id: string | undefined;
-    if (text) {
-      const ids = headingIdMap[text];
-      if (ids && ids.length > 0) {
-        const count = headingCounters.get(text) || 0;
-        id = ids[count] || ids[0];
-        headingCounters.set(text, count + 1);
-      } else {
-        id = generateId(text);
-      }
-    }
-    return (
-      <h2
-        id={id}
-        className='text-3xl font-bold mt-6 mb-3 scroll-mt-20'
-        {...props}
-      />
-    );
-  },
-  h3: (props: HeadingProps) => {
-    const text = getTextContent(props.children);
-    let id: string | undefined;
-    if (text) {
-      const ids = headingIdMap[text];
-      if (ids && ids.length > 0) {
-        const count = headingCounters.get(text) || 0;
-        id = ids[count] || ids[0];
-        headingCounters.set(text, count + 1);
-      } else {
-        id = generateId(text);
-      }
-    }
-    return (
-      <h3
-        id={id}
-        className='text-2xl font-semibold mt-4 mb-2 scroll-mt-20'
-        {...props}
-      />
-    );
-  },
-  h4: (props: HeadingProps) => {
-    const text = getTextContent(props.children);
-    let id: string | undefined;
-    if (text) {
-      const ids = headingIdMap[text];
-      if (ids && ids.length > 0) {
-        const count = headingCounters.get(text) || 0;
-        id = ids[count] || ids[0];
-        headingCounters.set(text, count + 1);
-      } else {
-        id = generateId(text);
-      }
-    }
-    return (
-      <h4
-        id={id}
-        className='text-xl font-semibold mt-4 mb-2 scroll-mt-20'
-        {...props}
-      />
-    );
-  },
-  p: (props: ParagraphProps) => (
-    <p className='mb-4 leading-relaxed text-foreground' {...props} />
-  ),
-  ul: (props: UnorderedListProps) => (
-    <ul className='list-disc list-inside mb-4 space-y-2 ml-4' {...props} />
-  ),
-  ol: (props: OrderedListProps) => (
-    <ol className='list-decimal list-inside mb-4 space-y-2 ml-4' {...props} />
-  ),
-  li: (props: ListItemProps) => (
-    <li className='ml-2' {...props} />
-  ),
-  blockquote: (props: BlockquoteProps) => (
-    <blockquote className='border-l-4 border-primary pl-4 italic my-4 py-2 bg-muted/50 rounded-r' {...props} />
-  ),
-  code: (props: CodeProps) => (
-    <code className='bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground' {...props} />
-  ),
-  a: (props: AnchorProps) => (
-    <a 
-      className='hover:underline font-medium text-blue-600' 
-      target={props.href?.startsWith('http') ? '_blank' : undefined}
-      rel={props.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-      {...props} 
-    />
-  ),
-  hr: () => <Separator className='my-8' />,
-  table: (props: ComponentProps<'table'>) => (
-    <div className='my-6 overflow-x-auto'>
-      <table className='w-full border-collapse border border-border rounded-lg' {...props} />
-    </div>
-  ),
-  thead: (props: ComponentProps<'thead'>) => (
-    <thead className='bg-muted' {...props} />
-  ),
-  tbody: (props: ComponentProps<'tbody'>) => (
-    <tbody {...props} />
-  ),
-  tr: (props: ComponentProps<'tr'>) => (
-    <tr className='border-b border-border hover:bg-muted/50 transition-colors' {...props} />
-  ),
-  th: (props: ComponentProps<'th'>) => (
-    <th className='border border-border px-4 py-2 text-left font-semibold' {...props} />
-  ),
-  td: (props: ComponentProps<'td'>) => (
-    <td className='border border-border px-4 py-2' {...props} />
-  ),
-  pre: (props: PreProps) => {
-    // 检查是否是 Mermaid 图表
-    const codeElement = props.children as React.ReactElement<CodeElementProps>;
-    if (
-      codeElement &&
-      React.isValidElement(codeElement) &&
-      codeElement.props &&
-      typeof codeElement.props.children === 'string' &&
-      codeElement.props.className?.includes('language-mermaid')
-    ) {
-      return <Mermaid>{codeElement.props.children}</Mermaid>;
-    }
-
-    // 普通代码块
-    return <pre className='bg-muted p-4 rounded-lg overflow-x-auto my-4' {...props} />;
-  },
+    title: `${meta.title} - ${siteConfig.title}`,
+    description: meta.description || `${meta.title} - ${siteConfig.title}`,
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      type: 'article',
+      publishedTime: meta.date,
+      authors: [meta.author || siteConfig.author],
+      tags: meta.tags,
+      images: meta.cover ? [{ url: meta.cover }] : [`${baseUrl}/avatar.jpeg`],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: meta.title,
+      description: meta.description,
+      images: meta.cover ? [meta.cover] : [`${baseUrl}/avatar.jpeg`],
+    },
   };
-};
+}
 
 export default async function PostPage({
   params,
@@ -214,83 +66,192 @@ export default async function PostPage({
   params: Promise<{ catalog: string; slug: string }>;
 }) {
   const { catalog, slug } = await params;
-  const { meta, content, toc, headingIdMap } = await getMdxContent(
-    catalog,
-    slug
-  );
+  const { meta, content, toc, headingIdMap, readingTime } =
+    await getMdxContent(catalog, slug);
+
+  // Previous & next posts
+  const allPosts = await getMdxList(catalog);
+  const currentIndex = allPosts.findIndex((p) => p.slug === slug);
+  const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+  const nextPost =
+    currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+
+  // Related posts (same tags, exclude current)
+  const allSitePosts = await getAllPosts();
+  const related = allSitePosts
+    .filter(
+      (p) =>
+        !(p.catalog === catalog && p.slug === slug) &&
+        p.tags?.some((t) => meta.tags?.includes(t)),
+    )
+    .slice(0, 4);
+
+  // JSON-LD structured data
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: meta.title,
+    description: meta.description,
+    datePublished: meta.date,
+    author: {
+      '@type': 'Person',
+      name: meta.author || siteConfig.author,
+    },
+    image: meta.cover ? `${baseUrl}${meta.cover}` : `${baseUrl}/avatar.jpeg`,
+    url: `${baseUrl}/${catalog}/${slug}`,
+  };
 
   return (
-    <div className='flex gap-8 p-6 md:p-10 max-w-7xl mx-auto'>
-      {/* 主内容区 */}
-      <article className='prose lg:prose-xl dark:prose-invert flex-1 min-w-0'>
-      {/* 头图 */}
-      {meta.cover && (
-        <div className='relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700'>
-          <Image
-            src={meta.cover}
-            alt={meta.title}
-            fill
-            className='object-cover'
-            priority
-            sizes='(max-width: 768px) 100vw, 896px'
-            unoptimized={meta.cover.startsWith('/') && !meta.cover.startsWith('//')}
-          />
-        </div>
-      )}
-
-      <div className='mb-8'>
-        <h1 className='text-4xl font-bold mb-4'>{meta.title}</h1>
-        
-        {meta.description && (
-          <p className='text-lg text-muted-foreground mb-4 italic'>
-            {meta.description}
-          </p>
-        )}
-
-        <div className='flex flex-wrap items-center gap-4 text-sm text-muted-foreground'>
-          {meta.date && (
-            <div className='flex items-center gap-2'>
-              <Calendar className='w-4 h-4' />
-              <span>{String(meta.date)}</span>
+    <>
+      <ReadingProgress />
+      <div className='flex gap-8 p-6 md:p-10 max-w-7xl mx-auto'>
+        <article className='prose lg:prose-xl dark:prose-invert flex-1 min-w-0'>
+          {meta.cover && (
+            <div className='relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden bg-muted'>
+              <Image
+                src={meta.cover}
+                alt={meta.title}
+                fill
+                className='object-cover'
+                priority
+                sizes='(max-width: 768px) 100vw, 896px'
+                unoptimized={
+                  meta.cover.startsWith('/') && !meta.cover.startsWith('//')
+                }
+              />
             </div>
           )}
-          {meta.author && (
-            <div className='flex items-center gap-2'>
-              <span>作者：{meta.author}</span>
-            </div>
-          )}
-        </div>
 
-        {meta.tags && meta.tags.length > 0 && (
-          <div className='flex flex-wrap gap-2 mt-4'>
-            {meta.tags.map((tag) => (
-              <Badge key={tag} variant='secondary'>
-                {tag}
-              </Badge>
-            ))}
+          <div className='mb-8'>
+            <h1 className='text-4xl font-bold mb-4'>{meta.title}</h1>
+            {meta.description && (
+              <p className='text-lg text-muted-foreground mb-4 italic'>
+                {meta.description}
+              </p>
+            )}
+
+            <div className='flex flex-wrap items-center gap-4 text-sm text-muted-foreground'>
+              {meta.date && (
+                <div className='flex items-center gap-2'>
+                  <Calendar className='w-4 h-4' />
+                  <span>{formatDate(meta.date)}</span>
+                </div>
+              )}
+              {meta.author && (
+                <div className='flex items-center gap-2'>
+                  <span>作者：{meta.author}</span>
+                </div>
+              )}
+              <div className='flex items-center gap-2'>
+                <Clock className='w-4 h-4' />
+                <span>约 {readingTime} 分钟阅读</span>
+              </div>
+            </div>
+
+            {meta.tags && meta.tags.length > 0 && (
+              <div className='flex flex-wrap gap-2 mt-4'>
+                {meta.tags.map((tag) => (
+                  <Link key={tag} href={`/tags/${tag}`}>
+                    <Badge
+                      variant='secondary'
+                      className='hover:bg-accent transition-colors cursor-pointer'
+                    >
+                      {tag}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          <Separator className='mb-8' />
+
+          <div className='mt-8'>
+            <MDXRemote
+              source={content}
+              options={{
+                scope: { frontmatter: meta },
+                mdxOptions: {
+                  remarkPlugins: [remarkMath],
+                  rehypePlugins: [
+                    rehypePreMermaid,
+                    rehypeKatex,
+                    [rehypePrettyCode, rehypePrettyCodeOptions],
+                  ],
+                },
+              }}
+              components={createHeadingComponents(headingIdMap)}
+            />
+          </div>
+
+          {/* Previous / Next navigation */}
+          {(prevPost || nextPost) && (
+            <>
+              <Separator className='my-8' />
+              <nav className='flex justify-between gap-4 not-prose'>
+                {prevPost ? (
+                  <Link
+                    href={`/${catalog}/${prevPost.slug}`}
+                    className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group'
+                  >
+                    <span className='text-xs text-muted-foreground flex items-center gap-1'>
+                      <ChevronLeft className='w-3 h-3' />
+                      上一篇
+                    </span>
+                    <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
+                      {prevPost.title}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className='flex-1' />
+                )}
+                {nextPost ? (
+                  <Link
+                    href={`/${catalog}/${nextPost.slug}`}
+                    className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group text-right'
+                  >
+                    <span className='text-xs text-muted-foreground flex items-center justify-end gap-1'>
+                      下一篇
+                      <ChevronRight className='w-3 h-3' />
+                    </span>
+                    <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
+                      {nextPost.title}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className='flex-1' />
+                )}
+              </nav>
+            </>
+          )}
+
+          {/* Related posts */}
+          <RelatedPosts posts={related} />
+
+          {/* Comments */}
+          {siteConfig.giscus.repo && (
+            <Giscus
+              repo={siteConfig.giscus.repo}
+              repoId={siteConfig.giscus.repoId}
+              category={siteConfig.giscus.category}
+              categoryId={siteConfig.giscus.categoryId}
+            />
+          )}
+        </article>
+
+        <aside className='hidden lg:block w-64 flex-shrink-0'>
+          <TableOfContents items={toc} />
+        </aside>
+
+        <MobileTOC items={toc} />
       </div>
 
-      <Separator className='mb-8' />
-
-        <div className='mt-8'>
-          <MDXRemote
-            source={content}
-            options={{
-              scope: {
-                frontmatter: meta,
-              },
-            }}
-            components={createHeadingComponents(headingIdMap)}
-          />
-        </div>
-    </article>
-
-      {/* 目录 */}
-      <aside className='hidden lg:block w-64 flex-shrink-0'>
-        <TableOfContents items={toc} />
-      </aside>
-    </div>
+      {/* JSON-LD */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    </>
   );
 }

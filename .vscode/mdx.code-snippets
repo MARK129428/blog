@@ -1,0 +1,110 @@
+{
+  "Mermaid diagram": {
+    "scope": "mdx",
+    "prefix": "mermaid",
+    "body": [
+      "```mermaid",
+      "${1:graph TB}",
+      "    ${2:A[开始] --> B[结束]}",
+      "```"
+    ],
+    "description": "Insert Mermaid diagram block"
+  },
+  "Code block": {
+    "scope": "mdx",
+    "prefix": "code",
+    "body": [
+      "```${1:language}",
+      "${2:code}",
+      "```"
+    ],
+    "description": "Insert code block"
+  },
+  "Image": {
+    "scope": "mdx",
+    "prefix": "img",
+    "body": [
+      "<Image",
+      "  src=\"${1:/path/to/image.png}\"",
+      "  alt=\"${2:alt}\"",
+      "  width={${3:800}}",
+      "  height={${4:400}}",
+      "/>"
+    ],
+    "description": "Insert click-to-zoom image"
+  },
+  "Tip info": {
+    "scope": "mdx",
+    "prefix": "tip",
+    "body": [
+      "<Tip type=\"${1|info,success,warning,error|}\">",
+      "  ${2:内容}",
+      "</Tip>"
+    ],
+    "description": "Insert tip box"
+  },
+  "Card": {
+    "scope": "mdx",
+    "prefix": "card",
+    "body": [
+      "<Card>",
+      "  <CardHeader>",
+      "    <CardTitle>${1:标题}</CardTitle>",
+      "    <CardDescription>${2:描述}</CardDescription>",
+      "  </CardHeader>",
+      "  <CardContent>",
+      "    ${3:内容}",
+      "  </CardContent>",
+      "</Card>"
+    ],
+    "description": "Insert Card component"
+  },
+  "LaTeX inline": {
+    "scope": "mdx",
+    "prefix": "latex",
+    "body": ["$${1:E = mc^2}$"],
+    "description": "Insert inline LaTeX formula"
+  },
+  "LaTeX block": {
+    "scope": "mdx",
+    "prefix": "latexb",
+    "body": [
+      "$$",
+      "${1:\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}}",
+      "$$"
+    ],
+    "description": "Insert block LaTeX formula"
+  },
+  "Table": {
+    "scope": "mdx",
+    "prefix": "table",
+    "body": [
+      "| ${1:列A} | ${2:列B} | ${3:列C} |",
+      "|------|------|------|",
+      "| ${4} | ${5} | ${6} |"
+    ],
+    "description": "Insert table"
+  },
+  "Author bio": {
+    "scope": "mdx",
+    "prefix": "author",
+    "body": ["<AuthorBio name=\"${1:Gemini}\" date=\"${2:$CURRENT_DATE}\" />"],
+    "description": "Insert author bio"
+  },
+  "Frontmatter": {
+    "scope": "mdx",
+    "prefix": "fm",
+    "body": [
+      "---",
+      "title: \"${1:标题}\"",
+      "date: ${2:$CURRENT_DATE}",
+      "author: Gemini",
+      "tags: [${3}]",
+      "description: \"${4:摘要}\"",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Insert frontmatter template"
+  }
+}

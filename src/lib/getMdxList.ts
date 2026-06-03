@@ -1,18 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-export interface MdxFrontmatter {
-  title: string;
-  description?: string;
-  date?: string;
-  author?: string;
-  cover?: string;
-  tags?: string[];
-}
-
-export interface MdxPostMeta extends MdxFrontmatter {
-  slug: string;
-}
+import type { MdxFrontmatter, MdxPostMeta } from '@/types/mdx';
+import { parseDate } from './content';
+import { estimateReadingTime } from './readingTime';
 
 export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
   const dir = path.join(process.cwd(), 'src/content', catalog);
@@ -28,24 +19,17 @@ export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
     const file = fs.readFileSync(fullPath, 'utf8');
     const { data } = matter(file);
 
-    // 确保日期是字符串格式
-    // gray-matter 可能返回 Date 对象，需要先检查
-    const rawDate = data.date;
-    const dateStr = rawDate
-      ? rawDate instanceof Date
-        ? rawDate.toISOString().split('T')[0]
-        : String(rawDate)
-      : undefined;
-
     const meta: MdxFrontmatter = {
       ...(data as MdxFrontmatter),
-      date: dateStr,
+      date: parseDate(data.date),
     };
 
+    const content = file.replace(/---[\s\S]*?---/, '').trim();
     return {
       slug: filename.replace(/\.mdx?$/, ''),
+      catalog,
       ...meta,
-      date: dateStr,
+      readingTime: estimateReadingTime(content),
     } satisfies MdxPostMeta;
   });
 
