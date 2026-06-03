@@ -29,7 +29,7 @@ export default async function HomePage({
     : posts;
 
   return (
-    <main className='max-w-[784px] mx-auto p-6 md:p-10'>
+    <main className='max-w-6xl mx-auto p-6 md:p-10'>
       <div className='flex items-center justify-between mb-6'>
         <div className='flex items-center gap-4 text-sm text-muted-foreground'>
           <span>{posts.length} 篇文章</span>

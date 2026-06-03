@@ -24,7 +24,7 @@ export default async function TagsPage() {
   );
 
   return (
-    <main className='p-6 md:p-10 max-w-4xl mx-auto'>
+    <main className='p-6 md:p-10 max-w-5xl mx-auto'>
       <h1 className='text-4xl font-bold mb-8'>标签</h1>
 
       {tags.length === 0 ? (

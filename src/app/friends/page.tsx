@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function FriendsPage() {
   return (
-    <main className='max-w-2xl mx-auto p-6 md:p-10'>
+    <main className='max-w-3xl mx-auto p-6 md:p-10'>
       <h1 className='text-2xl font-bold mb-2'>友链</h1>
       <p className='text-muted-foreground mb-8'>
         欢迎交换友链，联系{' '}

@@ -14,7 +14,7 @@ export default async function AboutPage() {
   const postCount = (await getAllPosts()).length;
 
   return (
-    <main className='max-w-2xl mx-auto p-6 md:p-10'>
+    <main className='max-w-3xl mx-auto p-6 md:p-10'>
       <div className='flex flex-col items-center text-center mb-8'>
         <Image
           src='/avatar.jpeg'
