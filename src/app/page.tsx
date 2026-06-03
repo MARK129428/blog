@@ -1,6 +1,9 @@
+import Link from 'next/link';
 import { getAllPosts } from '@/lib/content';
+import { getRecentThoughts } from '@/lib/thoughts';
 import { PostCard } from '@/components/home/PostCard';
 import { TagFilter } from '@/components/home/TagFilter';
+import { formatDate } from '@/lib/formatDate';
 
 export default async function HomePage({
   searchParams,
@@ -9,6 +12,7 @@ export default async function HomePage({
 }) {
   const { tag } = await searchParams;
   const posts = await getAllPosts();
+  const thoughts = await getRecentThoughts(3);
 
   // Collect all unique tags
   const tagSet = new Set<string>();
@@ -31,8 +35,17 @@ export default async function HomePage({
           <span>{posts.length} 篇文章</span>
           <span>·</span>
           <span>{allTags.length} 个标签</span>
+          {thoughts.length > 0 && (
+            <>
+              <span>·</span>
+              <Link href='/thoughts' className='hover:text-foreground transition-colors'>
+                {thoughts.length} 条说说
+              </Link>
+            </>
+          )}
         </div>
       </div>
+
       <div className='mb-6'>
         <TagFilter allTags={allTags} activeTag={tag || null} />
       </div>
@@ -51,6 +64,33 @@ export default async function HomePage({
             <PostCard key={`${post.catalog}-${post.slug}`} post={post} />
           ))}
         </div>
+      )}
+
+      {thoughts.length > 0 && !tag && (
+        <section className='mt-12'>
+          <div className='flex items-center justify-between mb-4'>
+            <h2 className='text-lg font-semibold'>最新说说</h2>
+            <Link
+              href='/thoughts'
+              className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+            >
+              查看全部 →
+            </Link>
+          </div>
+          <div className='space-y-3'>
+            {thoughts.map((thought) => (
+              <div
+                key={thought.slug}
+                className='p-4 rounded-lg border border-border bg-card'
+              >
+                <p className='text-xs text-muted-foreground mb-1.5'>
+                  {formatDate(thought.date)}
+                </p>
+                <p className='text-sm leading-relaxed'>{thought.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </main>
   );

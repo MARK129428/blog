@@ -35,6 +35,12 @@ export default function RootLayout({
                 {siteConfig.title}
               </Link>
               <Link
+                href='/thoughts'
+                className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+              >
+                说说
+              </Link>
+              <Link
                 href='/tags'
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors'
               >
