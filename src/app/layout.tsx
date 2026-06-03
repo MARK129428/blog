@@ -24,6 +24,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang='zh-CN' suppressHydrationWarning>
+      <head>
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
+      </head>
       <body className='antialiased bg-background text-foreground'>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
           <div className='min-h-screen flex flex-col'>
@@ -36,7 +41,7 @@ export default function RootLayout({
               </Link>
               <Link
                 href='/thoughts'
-                className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+                className='text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline'
               >
                 说说
               </Link>
@@ -45,6 +50,12 @@ export default function RootLayout({
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors'
               >
                 标签
+              </Link>
+              <Link
+                href='/friends'
+                className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+              >
+                友链
               </Link>
               <Link
                 href='/about'

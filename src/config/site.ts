@@ -20,13 +20,14 @@ export const siteConfig = {
     categoryId: "DIC_kwDOQWTaEs4C-ZIn" as string,
   },
   /**
-   * 网站分析 (Umami / Plausible 等)
-   * scriptUrl: 分析服务的脚本地址
-   * websiteId: 网站在分析服务中的 ID
-   * 留空则不加载任何分析脚本
+   * 网站分析
+   * scriptUrl: Umami / Plausible 等分析服务地址
+   * websiteId: 网站 ID
+   * baiduId: 百度统计 ID (https://tongji.baidu.com)，留空不加载
    */
   analytics: {
     scriptUrl: "https://cloud.umami.is/script.js" as string,
     websiteId: "" as string,
+    baiduId: "" as string,
   },
 } as const;

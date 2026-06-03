@@ -21,6 +21,12 @@ export function Footer() {
           >
             标签
           </Link>
+          <Link
+            href='/friends'
+            className='hover:text-foreground transition-colors'
+          >
+            友链
+          </Link>
         </div>
         <div className='flex items-center gap-4'>
           <a
