@@ -118,7 +118,7 @@ export default async function PostPage({
                 priority
                 sizes='(max-width: 768px) 100vw, 896px'
                 unoptimized={
-                  meta.cover.startsWith('/') && !meta.cover.startsWith('//')
+                  meta.cover.startsWith('/') || meta.cover.startsWith('http')
                 }
               />
             </div>

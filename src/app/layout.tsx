@@ -40,6 +40,12 @@ export default function RootLayout({
               >
                 标签
               </Link>
+              <Link
+                href='/about'
+                className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+              >
+                关于
+              </Link>
               <div className='flex-1' />
               <SearchDialog />
               <ThemeToggle />

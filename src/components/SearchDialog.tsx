@@ -3,8 +3,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 import type { SearchIndexEntry } from '@/lib/search';
@@ -69,17 +67,18 @@ export function SearchDialog() {
         <DialogContent className='max-w-2xl p-0 gap-0'>
           <DialogTitle className='sr-only'>搜索文章</DialogTitle>
           <div className='p-4 border-b border-border'>
-            <Input
+            <input
+              type='text'
               placeholder='输入关键词搜索...'
               value={query}
               onChange={(e) => doSearch(e.target.value)}
-              className='border-0 focus-visible:ring-0 text-lg h-auto'
+              className='w-full px-4 py-3 text-lg bg-transparent border-0 outline-none placeholder:text-muted-foreground'
               autoFocus
             />
           </div>
 
           {results.length > 0 && (
-            <ScrollArea className='max-h-96'>
+            <div className='max-h-96 overflow-y-auto'>
               <div className='p-2'>
                 {results.map((item) => (
                   <Link
@@ -104,7 +103,7 @@ export function SearchDialog() {
                   </Link>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           )}
 
           {query && results.length === 0 && (

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { TocItem } from '@/lib/extractToc';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TableOfContentsProps {
   items: TocItem[];
@@ -117,11 +116,9 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
     <div className={cn('sticky top-20', className)}>
       <div className='rounded-lg border bg-card p-4'>
         <h2 className='text-lg font-semibold mb-4'>目录</h2>
-        <ScrollArea className='h-[calc(100vh-200px)]'>
-          <nav className='space-y-1'>
-            {items.map((item, index) => renderItem(item, 0, `toc-${index}`))}
-          </nav>
-        </ScrollArea>
+        <nav className='space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto'>
+          {items.map((item, index) => renderItem(item, 0, `toc-${index}`))}
+        </nav>
       </div>
     </div>
   );

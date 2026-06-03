@@ -26,7 +26,14 @@ export default async function HomePage({
 
   return (
     <main className='max-w-6xl mx-auto p-6 md:p-10'>
-      <div className='mb-8'>
+      <div className='flex items-center justify-between mb-6'>
+        <div className='flex items-center gap-4 text-sm text-muted-foreground'>
+          <span>{posts.length} 篇文章</span>
+          <span>·</span>
+          <span>{allTags.length} 个标签</span>
+        </div>
+      </div>
+      <div className='mb-6'>
         <TagFilter allTags={allTags} activeTag={tag || null} />
       </div>
 
