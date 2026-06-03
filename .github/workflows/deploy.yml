@@ -1,16 +1,21 @@
-# .github/workflows/vercel-deploy.yml
 name: Vercel Deployment
 
 on:
   push:
     branches: ['main']
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   Deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: amondnet/vercel-action@v20
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
