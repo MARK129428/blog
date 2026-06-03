@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import rehypePrettyCode from 'rehype-pretty-code';
 import { rehypePrettyCodeOptions } from '@/lib/rehypePrettyCode';
+import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { rehypePreMermaid } from '@/lib/rehypeMermaid';
@@ -173,7 +174,7 @@ export default async function PostPage({
               options={{
                 scope: { frontmatter: meta },
                 mdxOptions: {
-                  remarkPlugins: [remarkMath],
+                  remarkPlugins: [remarkGfm, remarkMath],
                   rehypePlugins: [
                     rehypePreMermaid,
                     rehypeKatex,
