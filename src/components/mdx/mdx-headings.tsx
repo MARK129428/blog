@@ -101,24 +101,24 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
     ),
     hr: () => <Separator className='my-8' />,
     table: (props: ComponentProps<'table'>) => (
-      <div className='my-6 overflow-x-auto not-prose'>
-        <table className='w-full border-collapse border border-gray-300 dark:border-gray-600 rounded-lg' {...props} />
+      <div className='my-6 overflow-x-auto not-prose rounded-lg border border-gray-300 dark:border-gray-600'>
+        <table className='w-full border-collapse text-sm' {...props} />
       </div>
     ),
     thead: (props: ComponentProps<'thead'>) => (
-      <thead className='bg-gray-100 dark:bg-gray-800' {...props} />
+      <thead className='border-b-2 border-gray-400 dark:border-gray-500 bg-gray-100 dark:bg-gray-800' {...props} />
     ),
     tbody: (props: ComponentProps<'tbody'>) => (
       <tbody className='divide-y divide-gray-200 dark:divide-gray-700' {...props} />
     ),
     tr: (props: ComponentProps<'tr'>) => (
-      <tr className='border-b border-gray-200 dark:border-gray-700 hover:bg-muted/50 transition-colors' {...props} />
+      <tr className='hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors' {...props} />
     ),
     th: (props: ComponentProps<'th'>) => (
-      <th className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-left font-semibold text-foreground bg-gray-50 dark:bg-gray-800' {...props} />
+      <th className='px-4 py-3 text-left font-semibold text-foreground' {...props} />
     ),
     td: (props: ComponentProps<'td'>) => (
-      <td className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-foreground' {...props} />
+      <td className='px-4 py-2.5 text-foreground border-t border-gray-200 dark:border-gray-700' {...props} />
     ),
     pre: (props: PreProps) => {
       const codeElement = props.children as React.ReactElement<CodeElementProps>;
