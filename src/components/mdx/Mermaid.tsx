@@ -8,6 +8,8 @@ interface MermaidProps {
   id?: string;
 }
 
+let mermaidInitialized = false;
+
 export function Mermaid({ children, id }: MermaidProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -15,13 +17,17 @@ export function Mermaid({ children, id }: MermaidProps) {
     id || `mermaid-${Math.random().toString(36).substr(2, 9)}`;
 
   useEffect(() => {
-    if (ref.current) {
+    const el = ref.current;
+    if (!el) return;
+
+    if (!mermaidInitialized) {
+      mermaidInitialized = true;
       mermaid.initialize({
         startOnLoad: true,
         theme: 'base' as const,
         securityLevel: 'loose',
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: isFullscreen ? 16 : 14,
+        fontSize: 14,
         themeVariables: {
           primaryColor: '#ffffff',
           primaryTextColor: '#111111',
@@ -41,10 +47,10 @@ export function Mermaid({ children, id }: MermaidProps) {
           darkMode: false,
         },
         flowchart: {
-          nodeSpacing: isFullscreen ? 60 : 40,
-          rankSpacing: isFullscreen ? 80 : 60,
+          nodeSpacing: 40,
+          rankSpacing: 60,
           curve: 'basis',
-          padding: isFullscreen ? 15 : 10,
+          padding: 10,
           htmlLabels: true,
           useMaxWidth: true,
         },
@@ -55,58 +61,33 @@ export function Mermaid({ children, id }: MermaidProps) {
           useMaxWidth: true,
         },
       });
+    }
 
-      mermaid
-        .render(uniqueId, children.trim())
-        .then((result) => {
-          if (ref.current) {
-            ref.current.innerHTML = result.svg;
-            const svg = ref.current.querySelector('svg');
-            if (svg) {
-              svg.style.width = '100%';
-              svg.style.height = 'auto';
-              svg.style.maxWidth = 'none';
-              svg.style.display = 'block';
-
-              // Boost contrast: thicken all stroke elements
-              const paths = svg.querySelectorAll(
-                'path, line, polyline, rect, circle, ellipse',
-              );
-              paths.forEach((el) => {
-                const stroke = el.getAttribute('stroke');
-                const strokeWidth = el.getAttribute('stroke-width');
-                if (stroke && stroke !== 'none' && stroke !== 'transparent') {
-                  // Ensure stroke is dark
-                  if (stroke === '#333333') {
-                    el.setAttribute('stroke', '#000000');
-                  }
-                  // Slightly thicken thin lines
-                  if (strokeWidth && parseFloat(strokeWidth) < 1.5) {
-                    el.setAttribute('stroke-width', '1.5');
-                  }
-                }
-              });
-
-              if (isFullscreen) {
-                svg.style.transform = 'scale(1.0)';
-                svg.style.transformOrigin = 'top center';
-              }
-            }
-          }
-        })
-        .catch((error) => {
-          if (ref.current) {
-            ref.current.innerHTML = `<div class="text-red-400 p-4 bg-red-900/20 rounded-lg border border-red-800">
-              <h3 class="font-semibold mb-2">图表渲染失败</h3>
-              <p class="text-sm mb-2 text-red-300">错误信息：${error.message || '未知错误'}</p>
-              <details class="mt-4">
-                <summary class="cursor-pointer text-sm text-red-300 hover:text-red-200">查看图表源码</summary>
-                <pre class="text-xs mt-2 p-3 bg-black/50 rounded border overflow-auto max-h-40 whitespace-pre-wrap">${children.trim()}</pre>
-              </details>
-            </div>`;
+    mermaid.render(uniqueId, children.trim()).then((result) => {
+      el.innerHTML = result.svg;
+      const svg = el.querySelector('svg');
+      if (svg) {
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+        svg.style.maxWidth = 'none';
+        svg.style.display = 'block';
+        const paths = svg.querySelectorAll('path, line, polyline, rect, circle, ellipse');
+        paths.forEach((p) => {
+          const s = p.getAttribute('stroke');
+          const sw = p.getAttribute('stroke-width');
+          if (s && s !== 'none' && s !== 'transparent') {
+            if (s === '#333333') p.setAttribute('stroke', '#000000');
+            if (sw && parseFloat(sw) < 1.5) p.setAttribute('stroke-width', '1.5');
           }
         });
-    }
+        if (isFullscreen) {
+          svg.style.transform = 'scale(1.0)';
+          svg.style.transformOrigin = 'top center';
+        }
+      }
+    }).catch((error) => {
+      el.innerHTML = '<div class="text-red-400 p-4 bg-red-900/20 rounded-lg border border-red-800"><h3 class="font-semibold mb-2">图表渲染失败</h3><p class="text-sm mb-2 text-red-300">' + (error.message || '未知错误') + '</p></div>';
+    });
   }, [children, uniqueId, isFullscreen]);
 
   return (
@@ -143,7 +124,7 @@ export function Mermaid({ children, id }: MermaidProps) {
           className={`overflow-auto transition-all duration-300 cursor-pointer ${
             isFullscreen
               ? 'w-full h-full p-8 bg-white'
-              : 'bg-white rounded-lg border border-gray-300 w-full p-4'
+              : 'bg-white dark:bg-gray-900 rounded-lg border border-border w-full p-4'
           }`}
           style={{
             minHeight: isFullscreen ? '100vh' : '350px',

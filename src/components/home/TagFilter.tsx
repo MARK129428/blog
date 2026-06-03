@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 interface TagFilterProps {
@@ -9,32 +9,23 @@ interface TagFilterProps {
 }
 
 export function TagFilter({ allTags, activeTag }: TagFilterProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  function handleTagClick(tag: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (tag === activeTag) {
-      params.delete('tag');
-    } else {
-      params.set('tag', tag);
-    }
-    router.push(`/?${params.toString()}`);
-  }
-
   if (allTags.length === 0) return null;
 
   return (
-    <div className='flex flex-wrap gap-2 justify-center'>
+    <div className='flex flex-wrap gap-2'>
       {allTags.map((tag) => (
-        <button key={tag} onClick={() => handleTagClick(tag)}>
+        <Link
+          key={tag}
+          href={tag === activeTag ? '/' : `/?tag=${encodeURIComponent(tag)}`}
+          prefetch
+        >
           <Badge
             variant={tag === activeTag ? 'default' : 'secondary'}
             className='text-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors'
           >
             {tag}
           </Badge>
-        </button>
+        </Link>
       ))}
     </div>
   );

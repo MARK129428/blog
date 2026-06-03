@@ -1,9 +1,10 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getMdxContent } from '@/lib/getMdxContent';
 import { getMdxList } from '@/lib/getMdxList';
-import { MDXRemote } from 'next-mdx-remote/rsc';
-import { createHeadingComponents } from '@/components/mdx/mdx-headings';
+import { MdxBody } from '@/components/article/MdxBody';
+import { MdxBodySkeleton } from '@/components/article/MdxBodySkeleton';
 import { TableOfContents } from '@/components/article/TableOfContents';
 import { MobileTOC } from '@/components/article/MobileTOC';
 import { RelatedPosts } from '@/components/article/RelatedPosts';
@@ -13,12 +14,6 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import rehypePrettyCode from 'rehype-pretty-code';
-import { rehypePrettyCodeOptions } from '@/lib/rehypePrettyCode';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import { rehypePreMermaid } from '@/lib/rehypeMermaid';
 import { getAllPostSlugs, getAllPosts } from '@/lib/content';
 import { siteConfig } from '@/config/site';
 import { formatDate } from '@/lib/formatDate';
@@ -37,7 +32,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { catalog, slug } = await params;
   const { meta } = await getMdxContent(catalog, slug);
-
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn';
 
   return {
@@ -70,14 +64,12 @@ export default async function PostPage({
   const { meta, content, toc, headingIdMap, readingTime } =
     await getMdxContent(catalog, slug);
 
-  // Previous & next posts
   const allPosts = await getMdxList(catalog);
   const currentIndex = allPosts.findIndex((p) => p.slug === slug);
   const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
   const nextPost =
     currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 
-  // Related posts (same tags, exclude current)
   const allSitePosts = await getAllPosts();
   const related = allSitePosts
     .filter(
@@ -87,7 +79,6 @@ export default async function PostPage({
     )
     .slice(0, 4);
 
-  // JSON-LD structured data
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn';
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -95,10 +86,7 @@ export default async function PostPage({
     headline: meta.title,
     description: meta.description,
     datePublished: meta.date,
-    author: {
-      '@type': 'Person',
-      name: meta.author || siteConfig.author,
-    },
+    author: { '@type': 'Person', name: meta.author || siteConfig.author },
     image: meta.cover ? `${baseUrl}${meta.cover}` : `${baseUrl}/avatar.jpeg`,
     url: `${baseUrl}/${catalog}/${slug}`,
   };
@@ -106,8 +94,8 @@ export default async function PostPage({
   return (
     <>
       <ReadingProgress />
-      <div className='flex gap-8 p-6 md:p-10 max-w-7xl mx-auto'>
-        <article className='prose lg:prose-xl dark:prose-invert flex-1 min-w-0'>
+      <div className='flex gap-8 p-6 md:p-10 max-w-[784px] mx-auto'>
+        <article className='prose prose-base dark:prose-invert flex-1 min-w-0 max-w-none prose-headings:font-["Newsreader"] prose-headings:font-semibold prose-a:text-primary prose-a:no-underline hover:prose-a:underline'>
           {meta.cover && (
             <div className='relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden bg-muted'>
               <Image
@@ -116,10 +104,8 @@ export default async function PostPage({
                 fill
                 className='object-cover'
                 priority
-                sizes='(max-width: 768px) 100vw, 896px'
-                unoptimized={
-                  meta.cover.startsWith('/') || meta.cover.startsWith('http')
-                }
+                sizes='(max-width: 768px) 100vw, 784px'
+                unoptimized={meta.cover.startsWith('/') || meta.cover.startsWith('http')}
               />
             </div>
           )}
@@ -154,10 +140,7 @@ export default async function PostPage({
               <div className='flex flex-wrap gap-2 mt-4'>
                 {meta.tags.map((tag) => (
                   <Link key={tag} href={`/tags/${tag}`}>
-                    <Badge
-                      variant='secondary'
-                      className='hover:bg-accent transition-colors cursor-pointer'
-                    >
+                    <Badge variant='secondary' className='hover:bg-accent transition-colors cursor-pointer'>
                       {tag}
                     </Badge>
                   </Link>
@@ -168,25 +151,10 @@ export default async function PostPage({
 
           <Separator className='mb-8' />
 
-          <div className='mt-8'>
-            <MDXRemote
-              source={content}
-              options={{
-                scope: { frontmatter: meta },
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm, remarkMath],
-                  rehypePlugins: [
-                    rehypePreMermaid,
-                    rehypeKatex,
-                    [rehypePrettyCode, rehypePrettyCodeOptions],
-                  ],
-                },
-              }}
-              components={createHeadingComponents(headingIdMap)}
-            />
-          </div>
+          <Suspense fallback={<MdxBodySkeleton />}>
+            <MdxBody content={content} meta={meta} headingIdMap={headingIdMap} />
+          </Suspense>
 
-          {/* Previous / Next navigation */}
           {(prevPost || nextPost) && (
             <>
               <Separator className='my-8' />
@@ -197,40 +165,32 @@ export default async function PostPage({
                     className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group'
                   >
                     <span className='text-xs text-muted-foreground flex items-center gap-1'>
-                      <ChevronLeft className='w-3 h-3' />
-                      上一篇
+                      <ChevronLeft className='w-3 h-3' />上一篇
                     </span>
                     <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
                       {prevPost.title}
                     </span>
                   </Link>
-                ) : (
-                  <div className='flex-1' />
-                )}
+                ) : <div className='flex-1' />}
                 {nextPost ? (
                   <Link
                     href={`/${catalog}/${nextPost.slug}`}
                     className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group text-right'
                   >
                     <span className='text-xs text-muted-foreground flex items-center justify-end gap-1'>
-                      下一篇
-                      <ChevronRight className='w-3 h-3' />
+                      下一篇<ChevronRight className='w-3 h-3' />
                     </span>
                     <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
                       {nextPost.title}
                     </span>
                   </Link>
-                ) : (
-                  <div className='flex-1' />
-                )}
+                ) : <div className='flex-1' />}
               </nav>
             </>
           )}
 
-          {/* Related posts */}
           <RelatedPosts posts={related} />
 
-          {/* Comments */}
           {siteConfig.giscus.repo && (
             <Giscus
               repo={siteConfig.giscus.repo}
@@ -248,7 +208,6 @@ export default async function PostPage({
         <MobileTOC items={toc} />
       </div>
 
-      {/* JSON-LD */}
       <script
         type='application/ld+json'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

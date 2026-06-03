@@ -1,22 +1,27 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 import type { SearchIndexEntry } from '@/lib/search';
 
+let _fuseInstance: any = null;
+let _fuseIndex: SearchIndexEntry[] | null = null;
+
 export function SearchDialog() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchIndexEntry[]>([]);
-  const [index, setIndex] = useState<SearchIndexEntry[]>([]);
+  const indexLoaded = useRef(false);
 
   useEffect(() => {
+    if (indexLoaded.current) return;
+    indexLoaded.current = true;
     fetch('/api/search')
       .then((res) => res.json())
-      .then(setIndex)
+      .then((data) => { _fuseIndex = data; })
       .catch(() => {});
   }, []);
 
@@ -31,24 +36,22 @@ export function SearchDialog() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const doSearch = useCallback(
-    async (q: string) => {
-      setQuery(q);
-      if (!q.trim() || index.length === 0) {
-        setResults([]);
-        return;
-      }
-
+  const doSearch = useCallback(async (q: string) => {
+    setQuery(q);
+    if (!q.trim() || !_fuseIndex) {
+      setResults([]);
+      return;
+    }
+    if (!_fuseInstance) {
       const { default: Fuse } = await import('fuse.js');
-      const fuse = new Fuse(index, {
+      _fuseInstance = new Fuse(_fuseIndex, {
         keys: ['title', 'description', 'content', 'tags'],
         threshold: 0.3,
         includeScore: true,
       });
-      setResults(fuse.search(q).map((r) => r.item));
-    },
-    [index],
-  );
+    }
+    setResults(_fuseInstance.search(q).map((r: any) => r.item));
+  }, []);
 
   return (
     <>

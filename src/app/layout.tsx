@@ -27,12 +27,12 @@ export default function RootLayout({
       <head>
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
-        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
+        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap' rel='stylesheet' />
       </head>
       <body className='antialiased bg-background text-foreground'>
-        <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
+        <ThemeProvider attribute='class' defaultTheme='light' enableSystem>
           <div className='min-h-screen flex flex-col'>
-            <header className='sticky top-0 z-40 p-3 border-b border-border flex items-center gap-4 bg-card/80 backdrop-blur'>
+            <header className='sticky top-0 z-40 px-6 py-3 border-b border-border/60 flex items-center gap-5 bg-background/80 backdrop-blur'>
               <Link
                 href='/'
                 className='text-lg font-semibold hover:text-primary transition-colors'
@@ -41,24 +41,28 @@ export default function RootLayout({
               </Link>
               <Link
                 href='/thoughts'
+                prefetch
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:inline'
               >
                 说说
               </Link>
               <Link
                 href='/tags'
+                prefetch
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors'
               >
                 标签
               </Link>
               <Link
                 href='/friends'
+                prefetch
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors'
               >
                 友链
               </Link>
               <Link
                 href='/about'
+                prefetch
                 className='text-sm text-muted-foreground hover:text-foreground transition-colors'
               >
                 关于

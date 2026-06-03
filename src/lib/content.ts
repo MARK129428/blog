@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -15,17 +16,17 @@ export function parseDate(rawDate: unknown): string | undefined {
 // Directories to exclude from article catalogs
 const EXCLUDED_DIRS = new Set(['thoughts']);
 
-export function getCatalogNames(): string[] {
+export const getCatalogNames = cache((): string[] => {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   return fs
     .readdirSync(CONTENT_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !EXCLUDED_DIRS.has(d.name))
     .map((d) => d.name);
-}
+});
 
-export async function getAllPostSlugs(): Promise<
+export const getAllPostSlugs = cache(async (): Promise<
   { catalog: string; slug: string }[]
-> {
+> => {
   const catalogs = getCatalogNames();
   const slugs: { catalog: string; slug: string }[] = [];
   for (const catalog of catalogs) {
@@ -39,9 +40,9 @@ export async function getAllPostSlugs(): Promise<
     }
   }
   return slugs;
-}
+});
 
-export async function getAllPosts(): Promise<MdxPostMeta[]> {
+export const getAllPosts = cache(async (): Promise<MdxPostMeta[]> => {
   const catalogs = getCatalogNames();
   const posts: MdxPostMeta[] = [];
 
@@ -73,4 +74,4 @@ export async function getAllPosts(): Promise<MdxPostMeta[]> {
   );
 
   return posts;
-}
+});

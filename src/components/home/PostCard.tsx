@@ -22,7 +22,7 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={href} className='block h-full'>
-      <Card className='h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group'>
+      <Card className='h-full flex flex-col overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group border border-border/60'>
         {post.cover && (
           <div className='relative w-full h-48 overflow-hidden bg-muted'>
             <Image

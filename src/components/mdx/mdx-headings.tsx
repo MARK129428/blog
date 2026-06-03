@@ -74,7 +74,7 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
     h3: makeHeading(3, headingIdMap, headingCounters),
     h4: makeHeading(4, headingIdMap, headingCounters),
     p: (props: ComponentProps<'p'>) => (
-      <p className='mb-4 leading-relaxed text-foreground' {...props} />
+      <p className='mb-4 leading-relaxed text-foreground/85' {...props} />
     ),
     ul: (props: ComponentProps<'ul'>) => (
       <ul className='list-disc list-inside mb-4 space-y-2 ml-4' {...props} />
@@ -145,13 +145,13 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
       return (
         <div className='my-4 relative group'>
           {lang && (
-            <span className='absolute top-2 left-4 z-10 text-xs text-gray-400 font-mono'>
+            <span className='absolute top-2 left-4 z-10 text-xs text-gray-500 dark:text-gray-400 font-mono'>
               {lang}
             </span>
           )}
           <CopyButton code={codeText} />
           <pre
-            className='overflow-x-auto rounded-lg border border-border bg-[#0d1117] p-0 [&>code]:block [&>code]:p-4 [&>code]:pt-8'
+            className='overflow-x-auto rounded-lg border border-border bg-[#f4f4f4] dark:bg-[#0d1117] p-0 [&>code]:block [&>code]:p-4 [&>code]:pt-8'
             {...props}
           />
         </div>
