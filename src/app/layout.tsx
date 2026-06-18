@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ThemeProvider } from 'next-themes';
+import { Inter, Newsreader } from 'next/font/google';
 import { SearchDialog } from '@/components/SearchDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Footer } from '@/components/layout/Footer';
@@ -8,6 +9,19 @@ import { Analytics } from '@/components/layout/Analytics';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { siteConfig } from '@/config/site';
 import './globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-newsreader',
+  style: ['italic', 'normal'],
+});
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -23,13 +37,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='zh-CN' suppressHydrationWarning>
-      <head>
-        <link rel='preconnect' href='https://fonts.googleapis.com' />
-        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
-        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap' rel='stylesheet' />
-      </head>
+    <html lang='zh-CN' suppressHydrationWarning className={`${inter.variable} ${newsreader.variable}`}>
       <body className='antialiased bg-background text-foreground'>
+        <a
+          href='#content'
+          className='sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded'
+        >
+          跳到内容
+        </a>
         <ThemeProvider attribute='class' defaultTheme='light' enableSystem>
           <div className='min-h-screen flex flex-col'>
             <header className='sticky top-0 z-40 px-6 py-3 border-b border-border/60 flex items-center gap-5 bg-background/80 backdrop-blur'>
@@ -71,7 +86,7 @@ export default function RootLayout({
               <SearchDialog />
               <ThemeToggle />
             </header>
-            <main className='flex-1'>{children}</main>
+            <main id='content' className='flex-1'>{children}</main>
             <Footer />
           </div>
           <ScrollToTop />

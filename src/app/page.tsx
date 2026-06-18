@@ -2,19 +2,15 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/content';
 import { getRecentThoughts } from '@/lib/thoughts';
 import { PostCard } from '@/components/home/PostCard';
-import { TagFilter } from '@/components/home/TagFilter';
+import { HomeTagFilter } from '@/components/home/HomeTagFilter';
 import { formatDate } from '@/lib/formatDate';
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tag?: string }>;
-}) {
-  const { tag } = await searchParams;
+export const revalidate = 3600;
+
+export default async function HomePage() {
   const posts = await getAllPosts();
   const thoughts = await getRecentThoughts(3);
 
-  // Collect all unique tags
   const tagSet = new Set<string>();
   for (const post of posts) {
     for (const t of post.tags || []) {
@@ -23,13 +19,8 @@ export default async function HomePage({
   }
   const allTags = Array.from(tagSet).sort();
 
-  // Filter by selected tag
-  const filtered = tag
-    ? posts.filter((p) => (p.tags || []).includes(tag))
-    : posts;
-
   return (
-    <main className='max-w-6xl mx-auto p-6 md:p-10'>
+    <div className='max-w-6xl mx-auto p-6 md:p-10'>
       <div className='flex items-center justify-between mb-6'>
         <div className='flex items-center gap-4 text-sm text-muted-foreground'>
           <span>{posts.length} 篇文章</span>
@@ -46,27 +37,9 @@ export default async function HomePage({
         </div>
       </div>
 
-      <div className='mb-6'>
-        <TagFilter allTags={allTags} activeTag={tag || null} />
-      </div>
+      <HomeTagFilter allTags={allTags} allPosts={posts} />
 
-      {tag && (
-        <p className='text-muted-foreground mb-6'>
-          标签「{tag}」共 {filtered.length} 篇文章
-        </p>
-      )}
-
-      {filtered.length === 0 ? (
-        <p className='text-muted-foreground text-center py-12'>暂无文章。</p>
-      ) : (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {filtered.map((post) => (
-            <PostCard key={`${post.catalog}-${post.slug}`} post={post} />
-          ))}
-        </div>
-      )}
-
-      {thoughts.length > 0 && !tag && (
+      {thoughts.length > 0 && (
         <section className='mt-12'>
           <div className='flex items-center justify-between mb-4'>
             <h2 className='text-lg font-semibold'>最新说说</h2>
@@ -92,6 +65,6 @@ export default async function HomePage({
           </div>
         </section>
       )}
-    </main>
+    </div>
   );
 }

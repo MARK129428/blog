@@ -3,6 +3,8 @@ import { Tip } from '@/components/mdx/Tip';
 import { MdxImage } from '@/components/mdx/MdxImage';
 import { AuthorBio } from '@/components/article/AuthorBio';
 import { DynamicMermaid } from '@/components/mdx/DynamicMermaid';
+import { TikzSvg } from '@/components/mdx/TikzSvg';
+import { Music } from '@/components/mdx/Music';
 import { CopyButton } from '@/components/mdx/CopyButton';
 import {
   Card,
@@ -61,6 +63,9 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
     AuthorBio,
     Mermaid: DynamicMermaid,
     mermaid: DynamicMermaid,
+    TikzSvg,
+    tikzsvg: TikzSvg,
+    Music,
     Image: MdxImage,
     Card,
     CardHeader,
@@ -89,7 +94,7 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
       <blockquote className='border-l-4 border-primary pl-4 italic my-4 py-2 bg-muted/50 rounded-r' {...props} />
     ),
     code: (props: ComponentProps<'code'>) => (
-      <code className='bg-muted px-1.5 py-0.5 rounded text-sm font-mono before:content-none after:content-none' {...props} />
+      <code className='px-1.5 py-0.5 rounded text-sm font-mono before:content-none after:content-none' {...props} />
     ),
     a: (props: ComponentProps<'a'>) => (
       <a
@@ -151,7 +156,7 @@ export function createHeadingComponents(headingIdMap: Record<string, string[]>) 
           )}
           <CopyButton code={codeText} />
           <pre
-            className='overflow-x-auto rounded-lg border border-border bg-[#f4f4f4] dark:bg-[#0d1117] p-0 [&>code]:block [&>code]:p-4 [&>code]:pt-8'
+            className='overflow-x-auto rounded-lg border border-border p-0 [&>code]:block [&>code]:p-4 [&>code]:pt-8'
             {...props}
           />
         </div>

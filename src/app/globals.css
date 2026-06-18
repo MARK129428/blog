@@ -6,8 +6,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, monospace;
+  --font-newsreader: var(--font-newsreader), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -83,13 +84,15 @@
 }
 
 /* View transitions */
-@view-transition {
-  navigation: auto;
-}
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.25s;
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.25s;
+  }
 }
 
 /* Scrollbar */
@@ -117,4 +120,31 @@ html.dark ::-webkit-scrollbar-thumb {
 
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #525252;
+}
+
+/* Code block dual theme */
+code[data-theme] span {
+  color: var(--shiki-light);
+}
+.dark code[data-theme] span {
+  color: var(--shiki-dark);
+}
+
+code[data-theme] span[style*="--shiki-dark-bg"] {
+  background-color: var(--shiki-light-bg);
+}
+.dark code[data-theme] span[style*="--shiki-dark-bg"] {
+  background-color: var(--shiki-dark-bg);
+}
+
+pre[data-theme] {
+  background: #f6f8fa;
+}
+.dark pre[data-theme] {
+  background: #0d1117;
+}
+
+/* Inline code */
+:not(pre) > code {
+  background: var(--color-muted);
 }

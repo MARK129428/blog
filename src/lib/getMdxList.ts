@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -5,7 +6,9 @@ import type { MdxFrontmatter, MdxPostMeta } from '@/types/mdx';
 import { parseDate } from './content';
 import { estimateReadingTime } from './readingTime';
 
-export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
+export const getMdxList = cache(async function getMdxList(
+  catalog: string,
+): Promise<MdxPostMeta[]> {
   const dir = path.join(process.cwd(), 'src/content', catalog);
 
   if (!fs.existsSync(dir)) return [];
@@ -38,4 +41,4 @@ export async function getMdxList(catalog: string): Promise<MdxPostMeta[]> {
   });
 
   return posts;
-}
+});

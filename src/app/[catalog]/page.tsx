@@ -45,7 +45,7 @@ export default async function CatalogPage({
   );
 
   return (
-    <main className='max-w-6xl mx-auto p-6 md:p-10'>
+    <div className='max-w-6xl mx-auto p-6 md:p-10'>
       <div className='mb-8'>
         <h1 className='text-4xl font-bold mb-2'>
           {getCatalogLabel(catalog)}
@@ -70,6 +70,6 @@ export default async function CatalogPage({
         totalPages={totalPages}
         basePath={`/${catalog}`}
       />
-    </main>
+    </div>
   );
 }
