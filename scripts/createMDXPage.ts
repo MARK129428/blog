@@ -29,6 +29,13 @@ function toPinyinSlug(str: string): string {
     .replace(/^-|-$/g, '');
 }
 
+/** 限制 slug 最大长度，尽量在连字符处截断避免切断拼音词 */
+function truncateSlug(slug: string, maxLen = 60): string {
+  if (slug.length <= maxLen) return slug;
+  const cut = slug.lastIndexOf('-', maxLen);
+  return cut > maxLen / 2 ? slug.slice(0, cut) : slug.slice(0, maxLen);
+}
+
 function escapeYaml(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
@@ -97,7 +104,7 @@ async function createArticle(options: {
   description?: string;
   cover?: string;
 }) {
-  const slug = options.slug || toPinyinSlug(options.title);
+  const slug = options.slug || truncateSlug(toPinyinSlug(options.title));
   const basename = buildMdxBasename(options.date, slug);
   const frontmatter = buildArticleFrontmatter({
     title: options.title,
@@ -118,7 +125,9 @@ async function createThought(options: {
   slug?: string;
   tags?: string[];
 }) {
-  const slug = options.slug || toPinyinSlug(options.content.slice(0, 24)) || 'note';
+  // 取前 80 字转拼音后截断到 60 字符，长内容和短内容都能合理处理
+  const autoSlug = truncateSlug(toPinyinSlug(options.content.slice(0, 80))) || 'note';
+  const slug = options.slug || autoSlug;
   const basename = buildMdxBasename(options.date, slug);
   const frontmatter = buildThoughtFrontmatter({
     date: options.date,
