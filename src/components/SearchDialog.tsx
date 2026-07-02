@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
 import type { SearchIndexEntry } from '@/lib/search';
 
@@ -21,7 +20,9 @@ export function SearchDialog() {
     indexLoaded.current = true;
     fetch('/api/search')
       .then((res) => res.json())
-      .then((data) => { _fuseIndex = data; })
+      .then((data) => {
+        _fuseIndex = data;
+      })
       .catch(() => {});
   }, []);
 
@@ -57,60 +58,65 @@ export function SearchDialog() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className='flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground bg-muted rounded-md hover:bg-accent transition-colors'
+        className='flex items-center gap-2 rounded-md border border-border/60 bg-background/50 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground'
       >
-        <Search className='w-4 h-4' />
-        <span className='hidden sm:inline'>搜索文章...</span>
-        <kbd className='hidden sm:inline ml-2 px-1.5 py-0.5 text-xs rounded border border-border bg-background'>
-          Ctrl+K
+        <Search className='h-3.5 w-3.5' />
+        <span className='hidden sm:inline'>搜索</span>
+        <kbd className='ml-1 hidden rounded border border-border/60 bg-muted px-1.5 py-0.5 text-[10px] sm:inline'>
+          ⌘K
         </kbd>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className='max-w-2xl p-0 gap-0'>
+        <DialogContent className='max-w-2xl gap-0 overflow-hidden border-border/60 p-0'>
           <DialogTitle className='sr-only'>搜索文章</DialogTitle>
-          <div className='p-4 border-b border-border'>
+          <div className='border-b border-border/60 p-4'>
             <input
               type='text'
-              placeholder='输入关键词搜索...'
+              placeholder='搜索文章...'
               value={query}
               onChange={(e) => doSearch(e.target.value)}
-              className='w-full px-4 py-3 text-lg bg-transparent border-0 outline-none placeholder:text-muted-foreground'
+              className='w-full bg-transparent text-lg outline-none placeholder:text-muted-foreground'
               autoFocus
             />
           </div>
 
           {results.length > 0 && (
-            <div className='max-h-96 overflow-y-auto'>
-              <div className='p-2'>
-                {results.map((item) => (
-                  <Link
-                    key={`${item.catalog}-${item.slug}`}
-                    href={`/${item.catalog}/${item.slug}`}
-                    onClick={() => setOpen(false)}
-                    className='block p-3 rounded-lg hover:bg-accent transition-colors'
-                  >
-                    <div className='flex items-center gap-2 mb-1'>
-                      <span className='font-medium'>{item.title}</span>
+            <div className='max-h-96 overflow-y-auto p-2'>
+              {results.map((item) => (
+                <Link
+                  key={`${item.catalog}-${item.slug}`}
+                  href={`/${item.catalog}/${item.slug}`}
+                  onClick={() => setOpen(false)}
+                  className='block rounded-md px-3 py-3 transition-colors hover:bg-accent'
+                >
+                  <div className='mb-1 font-medium tracking-tight'>
+                    {item.title}
+                  </div>
+                  {item.description && (
+                    <p className='line-clamp-1 text-sm text-muted-foreground'>
+                      {item.description}
+                    </p>
+                  )}
+                  {item.tags.length > 0 && (
+                    <div className='mt-2 flex flex-wrap gap-1.5'>
                       {item.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant='outline' className='text-xs'>
+                        <span
+                          key={tag}
+                          className='rounded-full border border-border/60 px-2 py-0.5 text-xs text-muted-foreground'
+                        >
                           {tag}
-                        </Badge>
+                        </span>
                       ))}
                     </div>
-                    {item.description && (
-                      <p className='text-sm text-muted-foreground line-clamp-1'>
-                        {item.description}
-                      </p>
-                    )}
-                  </Link>
-                ))}
-              </div>
+                  )}
+                </Link>
+              ))}
             </div>
           )}
 
           {query && results.length === 0 && (
-            <div className='p-8 text-center text-muted-foreground'>
+            <div className='p-10 text-center text-sm text-muted-foreground'>
               未找到相关文章
             </div>
           )}

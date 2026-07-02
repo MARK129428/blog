@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { getAllPosts } from '@/lib/content';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
@@ -19,27 +18,29 @@ export default async function TagsPage() {
     }
   }
 
-  const tags = Array.from(tagMap.entries()).sort(
-    (a, b) => b[1] - a[1],
-  );
+  const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
 
   return (
-    <main className='p-6 md:p-10 max-w-5xl mx-auto'>
-      <h1 className='text-4xl font-bold mb-8'>标签</h1>
+    <main className='mx-auto max-w-5xl px-6 py-12 md:px-10 md:py-16'>
+      <div className='mb-10 border-b border-border/60 pb-8'>
+        <p className='mb-2 text-sm font-medium tracking-wide text-muted-foreground uppercase'>
+          Tags
+        </p>
+        <h1 className='text-3xl font-bold tracking-tight md:text-5xl'>标签</h1>
+      </div>
 
       {tags.length === 0 ? (
-        <p className='text-muted-foreground'>暂无标签。</p>
+        <p className='text-sm text-muted-foreground'>暂无标签。</p>
       ) : (
-        <div className='flex flex-wrap gap-3'>
+        <div className='flex flex-wrap gap-2'>
           {tags.map(([tag, count]) => (
-            <Link key={tag} href={`/tags/${tag}`}>
-              <Badge
-                variant='secondary'
-                className='text-sm px-4 py-2 hover:bg-accent transition-colors'
-              >
-                {tag}
-                <span className='ml-2 text-muted-foreground'>{count}</span>
-              </Badge>
+            <Link
+              key={tag}
+              href={`/tags/${tag}`}
+              className='inline-flex items-center gap-2 rounded-full border border-border/60 px-4 py-2 text-sm transition-colors hover:border-foreground/20'
+            >
+              {tag}
+              <span className='text-muted-foreground'>{count}</span>
             </Link>
           ))}
         </div>

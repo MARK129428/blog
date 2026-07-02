@@ -2,19 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
 import { pinyin } from 'pinyin-pro';
+import { siteConfig } from '../src/config/site';
+import { getCatalogLabel, getConfiguredCatalogs } from '../src/config/catalogs';
 
 const contentRoot = path.join(process.cwd(), 'src/content');
-const author = 'Gemini';
+const THOUGHTS_CATALOG = 'thoughts';
 
-function getFormattedDate(): string {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function toSlug(str: string): string {
+function toPinyinSlug(str: string): string {
   return str
     .trim()
     .split('')
@@ -26,184 +20,337 @@ function toSlug(str: string): string {
     .replace(/[^\w-]+/g, '')
     .replace(/-+/g, '-')
     .toLowerCase()
-    .trim();
+    .replace(/^-|-$/g, '');
 }
 
-// Gather all existing tags from all MDX files
-function getExistingTags(): string[] {
-  const tagSet = new Set<string>();
-  if (!fs.existsSync(contentRoot)) return [];
+function getArticleCatalogs(): string[] {
+  return getConfiguredCatalogs();
+}
 
-  const catalogs = fs
-    .readdirSync(contentRoot, { withFileTypes: true })
-    .filter((d) => d.isDirectory());
+function parseArgs(argv: string[]) {
+  const positional: string[] = [];
+  const flags: Record<string, string | boolean> = {};
 
-  for (const cat of catalogs) {
-    const dir = path.join(contentRoot, cat.name);
-    const files = fs
-      .readdirSync(dir)
-      .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'));
-    for (const file of files) {
-      const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
-      const match = raw.match(/^tags:\s*\[(.+)\]$/m);
-      if (match) {
-        const tags = match[1]
-          .split(',')
-          .map((t) => t.trim().replace(/['"]/g, ''));
-        tags.forEach((t) => t && tagSet.add(t));
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2);
+      const next = argv[i + 1];
+      if (next && !next.startsWith('--')) {
+        flags[key] = next;
+        i++;
+      } else {
+        flags[key] = true;
       }
+    } else {
+      positional.push(arg);
     }
   }
-  return Array.from(tagSet).sort();
+
+  return { positional, flags };
 }
 
-function getExistingCovers(): string[] {
-  const publicDir = path.join(process.cwd(), 'public');
-  const covers: string[] = [];
-
-  function walk(dir: string, prefix: string) {
-    if (!fs.existsSync(dir)) return;
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const e of entries) {
-      if (e.isDirectory()) {
-        walk(path.join(dir, e.name), `${prefix}${e.name}/`);
-      } else if (/\.(png|jpe?g|gif|webp|svg)$/i.test(e.name)) {
-        covers.push(`/${prefix}${e.name}`);
-      }
-    }
-  }
-  walk(publicDir, '');
-  return covers;
+function escapeYaml(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
-async function main() {
-  const modules = fs
-    .readdirSync(contentRoot, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name);
-
-  if (!modules.length) {
-    console.error('请先在 src/content/ 下创建分类目录');
-    process.exit(1);
-  }
-
-  // Step 1: select catalog
-  const { moduleName } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'moduleName',
-      message: '选择分类:',
-      choices: modules,
-    },
-  ]);
-
-  // Step 2: enter title
-  const { pageName } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'pageName',
-      message: '文章标题（中文自动转拼音）:',
-      validate: (input: string) => input.trim() !== '' || '标题不能为空',
-    },
-  ]);
-
-  const slug = toSlug(pageName);
-  const date = getFormattedDate();
-
-  // Step 3: select tags from existing + add custom
-  const existingTags = getExistingTags();
-  const { selectedTags } = await inquirer.prompt([
-    {
-      type: 'checkbox',
-      name: 'selectedTags',
-      message: '选择已有标签（空格选择，回车确认）:',
-      choices: existingTags,
-    },
-  ]);
-
-  const { customTags } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'customTags',
-      message: '添加新标签（逗号分隔，可选）:',
-      default: '',
-    },
-  ]);
-
-  const allTags = [
-    ...(selectedTags || []),
-    ...(customTags
-      ? customTags.split(',').map((t: string) => t.trim()).filter(Boolean)
-      : []),
-  ];
-
-  // Step 4: cover image (optional)
-  const covers = getExistingCovers();
-  const coverChoices = [{ name: '不使用头图', value: '' }, ...covers.map((c) => ({ name: c, value: c }))];
-  const { cover } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'cover',
-      message: '选择封面图片（可选）:',
-      choices: coverChoices,
-      default: '',
-    },
-  ]);
-
-  // Step 5: description
-  const { description } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'description',
-      message: '文章摘要:',
-      default: pageName,
-    },
-  ]);
-
-  // Step 6: featured
-  const { isFeatured } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'isFeatured',
-      message: '设为精选文章？',
-      default: false,
-    },
-  ]);
-
-  const moduleDir = path.join(contentRoot, moduleName.toLowerCase());
-  const mdxPath = path.join(moduleDir, `${slug}.mdx`);
+function writeMdxFile(
+  catalog: string,
+  basename: string,
+  frontmatter: string,
+  body = '',
+) {
+  const moduleDir = path.join(contentRoot, catalog.toLowerCase());
+  const mdxPath = path.join(moduleDir, `${basename}.mdx`);
 
   if (fs.existsSync(mdxPath)) {
     console.error(`文件已存在: ${mdxPath}`);
     process.exit(1);
   }
 
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(mdxPath, `${frontmatter}${body}`, 'utf-8');
+
+  console.log(`\n✓ 已创建: ${mdxPath}`);
+  if (!isThoughtCatalog(catalog)) {
+    console.log(`  访问: /${catalog}/${basename}`);
+  }
+}
+
+function buildArticleFrontmatter(options: {
+  title: string;
+  date: string;
+  tags: string[];
+  description?: string;
+  cover?: string;
+}) {
+  const { title, date, tags, description, cover } = options;
   const tagsYaml =
-    allTags.length > 0
-      ? `tags: [${allTags.map((t: string) => `"${t}"`).join(', ')}]`
+    tags.length > 0
+      ? `tags: [${tags.map((t) => `"${escapeYaml(t)}"`).join(', ')}]`
       : 'tags: []';
 
-  const frontmatter = [
+  return [
     '---',
-    `title: "${pageName}"`,
+    `title: "${escapeYaml(title)}"`,
     `date: ${date}`,
-    `author: ${author}`,
+    `author: ${siteConfig.author}`,
     tagsYaml,
-    `description: "${description}"`,
-    ...(cover ? [`cover: "${cover}"`] : []),
-    `isFeatured: ${isFeatured}`,
+    `description: "${escapeYaml(description || title)}"`,
+    ...(cover ? [`cover: "${escapeYaml(cover)}"`] : []),
     '---',
     '',
     '',
   ].join('\n');
+}
 
-  fs.mkdirSync(moduleDir, { recursive: true });
-  fs.writeFileSync(mdxPath, frontmatter, 'utf-8');
+function buildThoughtFrontmatter(options: {
+  date: string;
+  tags: string[];
+}) {
+  const { date, tags } = options;
+  const tagsYaml =
+    tags.length > 0
+      ? `tags: [${tags.map((t) => `"${escapeYaml(t)}"`).join(', ')}]`
+      : 'tags: ["随想"]';
 
-  console.log(`\n 已创建: ${mdxPath}`);
-  console.log(` 访问: /${moduleName.toLowerCase()}/${slug}`);
-  if (cover) console.log(` 封面: ${cover}`);
-  if (allTags.length) console.log(` 标签: ${allTags.join(', ')}`);
+  return ['---', `date: ${date}`, tagsYaml, '---', '', ''].join('\n');
+}
+
+async function createArticle(options: {
+  catalog: string;
+  title: string;
+  date: string;
+  slug?: string;
+  tags?: string[];
+  description?: string;
+  cover?: string;
+}) {
+  const slug = options.slug || toPinyinSlug(options.title) || toSlug(options.title);
+  const basename = buildMdxBasename(options.date, slug);
+  const frontmatter = buildArticleFrontmatter({
+    title: options.title,
+    date: options.date,
+    tags: options.tags || [],
+    description: options.description,
+    cover: options.cover,
+  });
+
+  writeMdxFile(options.catalog.toLowerCase(), basename, frontmatter);
+}
+
+async function createThought(options: {
+  content: string;
+  date: string;
+  slug?: string;
+  tags?: string[];
+}) {
+  const slug =
+    options.slug ||
+    toPinyinSlug(options.content.slice(0, 24)) ||
+    'note';
+  const basename = buildMdxBasename(options.date, slug);
+  const frontmatter = buildThoughtFrontmatter({
+    date: options.date,
+    tags: options.tags?.length ? options.tags : ['随想'],
+  });
+
+  writeMdxFile(THOUGHTS_CATALOG, basename, frontmatter, `${options.content.trim()}\n`);
+}
+
+async function runInteractive() {
+  const catalogs = getArticleCatalogs();
+
+  const { kind } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'kind',
+      message: '写什么？',
+      choices: [
+        { name: '文章', value: 'article' },
+        { name: '说说', value: 'thought' },
+      ],
+    },
+  ]);
+
+  const date =
+    (await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'date',
+        message: '日期 (YYYY-MM-DD):',
+        default: getFormattedDate(),
+        validate: (input: string) =>
+          /^\d{4}-\d{2}-\d{2}$/.test(input.trim()) || '日期格式应为 YYYY-MM-DD',
+      },
+    ])).date.trim();
+
+  if (kind === 'thought') {
+    const { content, tagsInput } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'content',
+        message: '说说内容:',
+        validate: (input: string) => input.trim() !== '' || '内容不能为空',
+      },
+      {
+        type: 'input',
+        name: 'tagsInput',
+        message: '标签（逗号分隔，可选）:',
+        default: '随想',
+      },
+    ]);
+
+    const tags = tagsInput
+      .split(',')
+      .map((t: string) => t.trim())
+      .filter(Boolean);
+
+    await createThought({ content, date, tags });
+    return;
+  }
+
+  if (!catalogs.length) {
+    console.error('请先在 src/content/ 下创建分类目录');
+    process.exit(1);
+  }
+
+  const { catalog, title, tagsInput, slugInput } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'catalog',
+      message: '分类:',
+      choices: catalogs.map((catalog) => ({
+        name: getCatalogLabel(catalog),
+        value: catalog,
+      })),
+    },
+    {
+      type: 'input',
+      name: 'title',
+      message: '文章标题:',
+      validate: (input: string) => input.trim() !== '' || '标题不能为空',
+    },
+    {
+      type: 'input',
+      name: 'tagsInput',
+      message: '标签（逗号分隔，可选）:',
+      default: '',
+    },
+    {
+      type: 'input',
+      name: 'slugInput',
+      message: '文件名 slug（回车自动生成）:',
+      default: '',
+    },
+  ]);
+
+  const tags = tagsInput
+    .split(',')
+    .map((t: string) => t.trim())
+    .filter(Boolean);
+  const slug = slugInput.trim() || undefined;
+  const previewSlug = slug || toPinyinSlug(title) || toSlug(title);
+  const previewBasename = buildMdxBasename(date, previewSlug);
+
+  console.log(`\n将创建: src/content/${catalog}/${previewBasename}.mdx`);
+
+  await createArticle({
+    catalog,
+    title: title.trim(),
+    date,
+    slug,
+    tags,
+  });
+}
+
+async function runCli() {
+  const { positional, flags } = parseArgs(process.argv.slice(2));
+  const isThought =
+    flags.thought === true ||
+    positional[0]?.toLowerCase() === 'thought' ||
+    positional[0]?.toLowerCase() === THOUGHTS_CATALOG;
+
+  const date =
+    typeof flags.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(flags.date)
+      ? flags.date
+      : getFormattedDate();
+
+  const tags =
+    typeof flags.tags === 'string'
+      ? flags.tags.split(',').map((t) => t.trim()).filter(Boolean)
+      : [];
+
+  if (isThought) {
+    const content =
+      typeof flags.content === 'string'
+        ? flags.content
+        : positional[0]?.toLowerCase() === 'thought' ||
+            positional[0]?.toLowerCase() === THOUGHTS_CATALOG
+          ? positional.slice(1).join(' ')
+          : positional.join(' ');
+
+    if (!content.trim()) {
+      console.error('用法: pnpm create-mdx thought "说说内容"');
+      console.error('  或: pnpm create-mdx --thought "说说内容"');
+      process.exit(1);
+    }
+
+    await createThought({
+      content,
+      date,
+      slug: typeof flags.slug === 'string' ? flags.slug : undefined,
+      tags,
+    });
+    return;
+  }
+
+  const catalog = positional[0];
+  const title = positional.slice(1).join(' ') || (flags.title as string);
+
+  if (!catalog || !title?.trim()) {
+    console.log(`用法:
+  pnpm create-mdx                          # 交互式创建
+  pnpm create-mdx frontend "文章标题"             # 快速创建文章
+  pnpm create-mdx frontend "标题" --tags "React" # 指定标签
+  pnpm create-mdx frontend "标题" --slug hooks   # 自定义 slug
+  pnpm create-mdx thought "说说内容"        # 创建说说
+
+文件名格式: YYYY-MM-DD-slug.mdx
+`);
+    process.exit(positional.length === 0 && Object.keys(flags).length === 0 ? 0 : 1);
+  }
+
+  const catalogs = getArticleCatalogs();
+  if (!catalogs.includes(catalog)) {
+    console.error(
+      `未知分类 "${catalog}"，可选: ${catalogs.map((c) => `${c} (${getCatalogLabel(c)})`).join(', ')}`,
+    );
+    process.exit(1);
+  }
+
+  await createArticle({
+    catalog,
+    title: title.trim(),
+    date,
+    slug: typeof flags.slug === 'string' ? flags.slug : undefined,
+    tags,
+    description: typeof flags.description === 'string' ? flags.description : undefined,
+    cover: typeof flags.cover === 'string' ? flags.cover : undefined,
+  });
+}
+
+async function main() {
+  if (!fs.existsSync(contentRoot)) {
+    fs.mkdirSync(contentRoot, { recursive: true });
+  }
+
+  const hasCliInput = process.argv.length > 2;
+  if (hasCliInput) {
+    await runCli();
+  } else {
+    await runInteractive();
+  }
 }
 
 main();

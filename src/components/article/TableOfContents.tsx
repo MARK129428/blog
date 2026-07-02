@@ -88,9 +88,9 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
           onClick={(e) => scrollToHeading(item.id, e)}
           className={cn(
             'block w-full text-left py-1.5 px-3 rounded-md text-sm transition-colors',
-            'hover:bg-accent hover:text-accent-foreground',
+            'hover:text-foreground',
             isActive
-              ? 'bg-accent text-accent-foreground font-medium'
+              ? 'font-medium text-foreground'
               : 'text-muted-foreground',
             depth === 0 && 'font-semibold',
             depth === 1 && 'font-medium'
@@ -114,8 +114,10 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
 
   return (
     <div className={cn('sticky top-20', className)}>
-      <div className='rounded-lg border bg-card p-4'>
-        <h2 className='text-lg font-semibold mb-4'>目录</h2>
+      <div className='rounded-lg border border-border/60 bg-card/50 p-4 backdrop-blur'>
+        <h2 className='mb-4 text-sm font-semibold tracking-wide uppercase text-muted-foreground'>
+          目录
+        </h2>
         <nav className='space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto'>
           {items.map((item, index) => renderItem(item, 0, `toc-${index}`))}
         </nav>

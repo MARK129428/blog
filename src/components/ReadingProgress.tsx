@@ -8,17 +8,20 @@ export function ReadingProgress() {
   useEffect(() => {
     const onScroll = () => {
       const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0);
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(
+        docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0,
+      );
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <div className='fixed top-0 left-0 z-50 w-full h-0.5 bg-border'>
+    <div className='fixed top-0 left-0 z-50 h-px w-full bg-border/60'>
       <div
-        className='h-full bg-primary transition-[width] duration-150 ease-out'
+        className='h-full vercel-gradient-bar transition-[width] duration-150 ease-out'
         style={{ width: `${progress}%` }}
       />
     </div>

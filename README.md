@@ -20,18 +20,27 @@ pnpm build
 ### 快速创建
 
 ```bash
+# 交互式（文章 / 说说，2～4 步）
 pnpm create-mdx
+
+# 命令行快速创建文章
+pnpm create-mdx frontend "React Hooks 笔记"
+pnpm create-mdx frontend "标题" --tags "React,JavaScript" --slug hooks
+
+# 创建说说
+pnpm create-mdx thought "今天改好了搜索功能"
 ```
 
-交互式流程：
-1. 选择分类目录
-2. 输入文章标题（中文自动转拼音 slug）
-3. 勾选已有标签 + 输入新标签
-4. 选择封面图（自动扫描 `public/` 目录）
-5. 输入文章摘要
-6. 是否设为精选
+新文件统一命名为 **`YYYY-MM-DD-slug.mdx`**，按日期排序、便于管理。例如：
 
-一步生成完整的 `.mdx` 文件。
+```
+src/content/frontend/2026-06-26-react-hooks-biji.mdx
+src/content/thoughts/2026-06-26-jintian.mdx
+```
+
+访问路径与文件名一致：`/frontend/2026-06-26-react-hooks-biji`
+
+分类按**主题**划分（前端、后端、DevOps 等），具体语言/框架用 **tags** 标注。
 
 ### VS Code 代码片段
 
@@ -60,7 +69,6 @@ author: Gemini
 tags: ["React", "前端"]
 description: 文章摘要
 cover: /path/to/cover.jpg   # 可选头图
-isFeatured: false            # 是否设为精选文章
 ---
 ```
 
@@ -141,17 +149,16 @@ $$
 
 ### 添加新分类
 
-1. 在 `src/content/` 下新建文件夹
-2. 在 `src/config/catalogs.ts` 中添加显示名和图标
+在 `src/config/catalogs.ts` 的 `catalogMeta` 里加一项即可，导航和脚手架会自动识别：
 
 ```ts
 export const catalogMeta = {
   // ...
-  python: { label: 'Python', icon: devicon('python') },
+  rust: { label: 'Rust', icon: devicon('rust'), description: 'Rust 专题' },
 };
 ```
 
-侧边栏会自动显示所有有内容的分类。
+可选：在 `src/content/rust/` 下建目录（创建文章时会自动创建）。
 
 ## 项目结构
 

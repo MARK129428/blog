@@ -1,10 +1,14 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getMdxList } from '@/lib/getMdxList';
 import { PostCard } from '@/components/home/PostCard';
 import { Pagination } from '@/components/Pagination';
-import { Card } from '@/components/ui/card';
 import { getCatalogNames } from '@/lib/content';
-import { getCatalogLabel } from '@/config/catalogs';
+import {
+  getCatalogDescription,
+  getCatalogLabel,
+  isValidCatalog,
+} from '@/config/catalogs';
 import { siteConfig } from '@/config/site';
 
 export const revalidate = 3600;
@@ -34,6 +38,10 @@ export default async function CatalogPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { catalog } = await params;
+  if (!isValidCatalog(catalog)) {
+    notFound();
+  }
+
   const { page: pageStr } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageStr || '1', 10) || 1);
 
@@ -45,21 +53,31 @@ export default async function CatalogPage({
   );
 
   return (
-    <div className='max-w-6xl mx-auto p-6 md:p-10'>
-      <div className='mb-8'>
-        <h1 className='text-4xl font-bold mb-2'>
+    <div className='mx-auto max-w-6xl px-6 py-12 md:px-10 md:py-16'>
+      <div className='mb-10 border-b border-border/60 pb-8'>
+        <p className='mb-2 text-sm font-medium tracking-wide text-muted-foreground uppercase'>
+          Category
+        </p>
+        <h1 className='text-3xl font-bold tracking-tight md:text-5xl'>
           {getCatalogLabel(catalog)}
         </h1>
-        <p className='text-muted-foreground'>共 {posts.length} 篇文章</p>
+        {getCatalogDescription(catalog) && (
+          <p className='mt-3 max-w-2xl text-muted-foreground'>
+            {getCatalogDescription(catalog)}
+          </p>
+        )}
+        <p className='mt-4 text-sm text-muted-foreground'>
+          共 {posts.length} 篇文章
+        </p>
       </div>
 
       {posts.length === 0 && (
-        <Card className='p-12 text-center'>
-          <p className='text-muted-foreground'>暂无文章。</p>
-        </Card>
+        <div className='rounded-lg border border-border/60 bg-card/50 p-16 text-center'>
+          <p className='text-sm text-muted-foreground'>暂无文章。</p>
+        </div>
       )}
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
         {pagedPosts.map((post) => (
           <PostCard key={post.slug} post={post} />
         ))}

@@ -77,9 +77,9 @@ export default async function PostPage({
     <>
       <ReadingProgress />
       <div className='flex gap-8 p-6 md:p-10 max-w-5xl mx-auto'>
-        <article className='prose prose-base dark:prose-invert flex-1 min-w-0 max-w-none prose-headings:font-[family-name:var(--font-newsreader)] prose-headings:font-semibold prose-a:text-primary prose-a:no-underline hover:prose-a:underline'>
+        <article className='prose prose-base prose-neutral dark:prose-invert flex-1 min-w-0 max-w-none prose-headings:tracking-tight prose-headings:font-semibold prose-a:text-[#0070f3] prose-a:no-underline hover:prose-a:underline dark:prose-a:text-[#3291ff]'>
           {meta.cover && (
-            <div className='relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden bg-muted'>
+            <div className='relative w-full h-64 md:h-80 mb-8 rounded-lg overflow-hidden border border-border/60 bg-muted'>
               <Image
                 src={meta.cover}
                 alt={meta.title}
@@ -93,9 +93,9 @@ export default async function PostPage({
           )}
 
           <div className='mb-8'>
-            <h1 className='text-4xl font-bold mb-4'>{meta.title}</h1>
+            <h1 className='text-3xl md:text-4xl font-bold tracking-tight mb-4'>{meta.title}</h1>
             {meta.description && (
-              <p className='text-lg text-muted-foreground mb-4 italic'>
+              <p className='text-lg text-muted-foreground mb-4 leading-relaxed'>
                 {meta.description}
               </p>
             )}
@@ -122,7 +122,7 @@ export default async function PostPage({
               <div className='flex flex-wrap gap-2 mt-4'>
                 {meta.tags.map((tag) => (
                   <Link key={tag} href={`/tags/${tag}`}>
-                    <Badge variant='secondary' className='hover:bg-accent transition-colors cursor-pointer'>
+                    <Badge variant='secondary' className='rounded-full border-border/60 hover:border-foreground/20 transition-colors cursor-pointer'>
                       {tag}
                     </Badge>
                   </Link>
@@ -185,12 +185,12 @@ async function PostNavigation({
         {prevPost ? (
           <Link
             href={`/${catalog}/${prevPost.slug}`}
-            className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group'
+            className='flex-1 p-4 rounded-lg border border-border/60 hover:border-foreground/20 transition-colors group'
           >
             <span className='text-xs text-muted-foreground flex items-center gap-1'>
               <ChevronLeft className='w-3 h-3' />上一篇
             </span>
-            <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
+            <span className='text-sm font-medium group-hover:text-[#0070f3] dark:group-hover:text-[#3291ff] transition-colors line-clamp-1'>
               {prevPost.title}
             </span>
           </Link>
@@ -200,13 +200,13 @@ async function PostNavigation({
         {nextPost ? (
           <Link
             href={`/${catalog}/${nextPost.slug}`}
-            className='flex-1 p-4 rounded-lg border border-border hover:bg-accent transition-colors group text-right'
+            className='flex-1 p-4 rounded-lg border border-border/60 hover:border-foreground/20 transition-colors group text-right'
           >
             <span className='text-xs text-muted-foreground flex items-center justify-end gap-1'>
               下一篇
               <ChevronRight className='w-3 h-3' />
             </span>
-            <span className='text-sm font-medium group-hover:text-primary transition-colors line-clamp-1'>
+            <span className='text-sm font-medium group-hover:text-[#0070f3] dark:group-hover:text-[#3291ff] transition-colors line-clamp-1'>
               {nextPost.title}
             </span>
           </Link>

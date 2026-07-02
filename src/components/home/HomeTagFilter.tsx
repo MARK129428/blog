@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { PostCard } from '@/components/home/PostCard';
 import type { MdxPostMeta } from '@/types/mdx';
+import { cn } from '@/lib/utils';
 
 interface Props {
   allTags: string[];
@@ -20,33 +20,50 @@ export function HomeTagFilter({ allTags, allPosts }: Props) {
 
   return (
     <>
-      <div className='flex flex-wrap gap-2 mb-6'>
-        {allTags.map((tag) => (
+      {allTags.length > 0 && (
+        <div className='mb-8 flex flex-wrap gap-2'>
           <button
-            key={tag}
             type='button'
-            onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+            onClick={() => setActiveTag(null)}
+            className={cn(
+              'rounded-full border px-3 py-1 text-sm transition-colors',
+              activeTag === null
+                ? 'border-foreground bg-foreground text-background'
+                : 'border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+            )}
           >
-            <Badge
-              variant={tag === activeTag ? 'default' : 'secondary'}
-              className='text-sm px-3 py-1 cursor-pointer hover:bg-accent transition-colors'
+            全部
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              type='button'
+              onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-sm transition-colors',
+                tag === activeTag
+                  ? 'border-foreground bg-foreground text-background'
+                  : 'border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground',
+              )}
             >
               {tag}
-            </Badge>
-          </button>
-        ))}
-      </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {activeTag && (
-        <p className='text-muted-foreground mb-6'>
+        <p className='mb-6 text-sm text-muted-foreground'>
           标签「{activeTag}」共 {filtered.length} 篇文章
         </p>
       )}
 
       {filtered.length === 0 ? (
-        <p className='text-muted-foreground text-center py-12'>暂无文章。</p>
+        <p className='py-16 text-center text-sm text-muted-foreground'>
+          暂无文章。
+        </p>
       ) : (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {filtered.map((post) => (
             <PostCard key={`${post.catalog}-${post.slug}`} post={post} />
           ))}

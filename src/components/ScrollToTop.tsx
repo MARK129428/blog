@@ -17,8 +17,10 @@ export function ScrollToTop() {
     <Button
       size='icon'
       variant='outline'
-      className={`fixed bottom-6 right-6 z-50 rounded-full shadow-lg transition-all duration-300 ${
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+      className={`fixed bottom-6 right-6 z-50 rounded-full border-border/60 bg-background/80 backdrop-blur transition-all duration-300 ${
+        visible
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label='回到顶部'

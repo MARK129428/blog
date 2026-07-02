@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import type { MdxFrontmatter, MdxPostMeta } from '@/types/mdx';
+import { getConfiguredCatalogs } from '@/config/catalogs';
 import { estimateReadingTime } from './readingTime';
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
@@ -13,15 +14,8 @@ export function parseDate(rawDate: unknown): string | undefined {
   return String(rawDate);
 }
 
-// Directories to exclude from article catalogs
-const EXCLUDED_DIRS = new Set(['thoughts']);
-
 export const getCatalogNames = cache((): string[] => {
-  if (!fs.existsSync(CONTENT_DIR)) return [];
-  return fs
-    .readdirSync(CONTENT_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && !EXCLUDED_DIRS.has(d.name))
-    .map((d) => d.name);
+  return getConfiguredCatalogs();
 });
 
 export const getAllPostSlugs = cache(async (): Promise<

@@ -35,18 +35,21 @@ export default async function TagPage({
   const filtered = posts.filter((p) => (p.tags || []).includes(tag));
 
   return (
-    <main className='p-6 md:p-10 max-w-6xl mx-auto'>
-      <h1 className='text-4xl font-bold mb-2'>
-        标签：{tag}
-      </h1>
-      <p className='text-muted-foreground mb-8'>
-        共 {filtered.length} 篇文章
-      </p>
+    <main className='mx-auto max-w-6xl px-6 py-12 md:px-10 md:py-16'>
+      <div className='mb-10 border-b border-border/60 pb-8'>
+        <p className='mb-2 text-sm font-medium tracking-wide text-muted-foreground uppercase'>
+          Tag
+        </p>
+        <h1 className='text-3xl font-bold tracking-tight md:text-5xl'>{tag}</h1>
+        <p className='mt-3 text-sm text-muted-foreground'>
+          共 {filtered.length} 篇文章
+        </p>
+      </div>
 
       {filtered.length === 0 ? (
-        <p className='text-muted-foreground'>暂无文章。</p>
+        <p className='text-sm text-muted-foreground'>暂无文章。</p>
       ) : (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {filtered.map((post) => (
             <PostCard key={`${post.catalog}-${post.slug}`} post={post} />
           ))}

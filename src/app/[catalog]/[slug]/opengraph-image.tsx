@@ -27,8 +27,8 @@ export default async function Image({
       <div
         style={{
           fontSize: 48,
-          background: '#0d1117',
-          color: '#f0f6fc',
+          background: '#000000',
+          color: '#ededed',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -47,21 +47,42 @@ export default async function Image({
             left: 0,
             right: 0,
             height: 4,
-            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)',
+            background: 'linear-gradient(90deg, #0070f3, #7928ca, #ff0080)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: -120,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 800,
+            height: 400,
+            background:
+              'radial-gradient(ellipse, rgba(0,112,243,0.35), transparent 70%)',
           }}
         />
         <h1
           style={{
             fontSize: 56,
-            fontWeight: 800,
-            lineHeight: 1.2,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.15,
             marginBottom: 24,
             maxWidth: '90%',
           }}
         >
           {title}
         </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 28, color: '#8b949e' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            fontSize: 24,
+            color: '#888888',
+          }}
+        >
           <span>{siteConfig.author}</span>
           {date && <span>· {date}</span>}
         </div>
