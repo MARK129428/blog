@@ -12,7 +12,13 @@ const Mermaid: ComponentType<MermaidProps> = dynamic(
   () => import('@/components/mdx/Mermaid').then((mod) => ({ default: mod.Mermaid })),
   {
     ssr: false,
-    loading: () => <div className="h-80 bg-muted animate-pulse rounded-lg" />,
+    loading: () => (
+      <div className='my-6 rounded-lg border border-border/60 bg-muted/30 p-4'>
+        <div className='h-20 bg-muted animate-pulse rounded-md flex items-center justify-center text-sm text-muted-foreground'>
+          加载图表...
+        </div>
+      </div>
+    ),
   },
 );
 

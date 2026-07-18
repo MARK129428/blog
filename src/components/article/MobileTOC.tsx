@@ -59,19 +59,21 @@ export function MobileTOC({ items }: MobileTOCProps) {
                 <X className='w-5 h-5' />
               </Button>
             </div>
-            <nav className='flex-1 overflow-auto space-y-1'>
+            <nav className='flex-1 overflow-auto space-y-0.5'>
               {items.map((item) => (
                 <div key={item.id}>
                   <button
                     onClick={() => {
-                      document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                      document
+                        .getElementById(item.id)
+                        ?.scrollIntoView({ behavior: 'smooth' });
                       setOpen(false);
                     }}
                     className={cn(
-                      'block w-full text-left py-2 px-3 rounded-md text-sm transition-colors',
+                      'block w-full text-left py-2.5 px-4 rounded-md text-sm transition-all duration-200',
                       activeId === item.id
-                        ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-muted-foreground hover:bg-accent',
+                        ? 'bg-accent font-medium text-accent-foreground border-l-2 border-foreground'
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground/80',
                     )}
                   >
                     {item.text}
@@ -80,14 +82,16 @@ export function MobileTOC({ items }: MobileTOCProps) {
                     <button
                       key={child.id}
                       onClick={() => {
-                        document.getElementById(child.id)?.scrollIntoView({ behavior: 'smooth' });
+                        document
+                          .getElementById(child.id)
+                          ?.scrollIntoView({ behavior: 'smooth' });
                         setOpen(false);
                       }}
                       className={cn(
-                        'block w-full text-left py-1.5 px-6 rounded-md text-sm transition-colors',
+                        'block w-full text-left py-2 px-6 rounded-md text-sm transition-all duration-200',
                         activeId === child.id
-                          ? 'bg-accent text-accent-foreground font-medium'
-                          : 'text-muted-foreground hover:bg-accent',
+                          ? 'bg-accent font-medium text-accent-foreground border-l-2 border-foreground'
+                          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground/80',
                       )}
                     >
                       {child.text}

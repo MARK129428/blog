@@ -76,7 +76,7 @@ export default async function PostPage({
   return (
     <>
       <ReadingProgress />
-      <div className='flex gap-8 p-6 md:p-10 max-w-5xl mx-auto'>
+      <div className='flex gap-8 p-4 md:p-6 max-w-7xl mx-auto'>
         <article className='prose prose-base prose-neutral dark:prose-invert flex-1 min-w-0 max-w-none prose-headings:tracking-tight prose-headings:font-semibold prose-a:text-[#0070f3] prose-a:no-underline hover:prose-a:underline dark:prose-a:text-[#3291ff]'>
           {meta.cover && (
             <div className='relative w-full h-64 md:h-80 mb-8 rounded-lg overflow-hidden border border-border/60 bg-muted'>

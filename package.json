@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "create-mdx": "tsx scripts/createMDXPage.ts",
+    "cmdx": "tsx scripts/createMDXPage.ts",
     "lint": "eslint"
   },
   "dependencies": {
