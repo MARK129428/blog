@@ -2,59 +2,11 @@ import { cache } from 'react';
 import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
-import { spawn } from 'child_process';
 import type { MdxFrontmatter } from '@/types/mdx';
 import { extractToc, TocItem } from './extractToc';
 import { parseDate } from './content';
 import { estimateReadingTime } from './readingTime';
-
-function getRenderScript(): string {
-  // 动态拼接路径使 Turbopack 无法静态追踪
-  const scriptDir = 'scripts';
-  const scriptName = 'render-tikz';
-  const scriptExt = 'mjs';
-  return path.join(process.cwd(), scriptDir, `${scriptName}.${scriptExt}`);
-}
-
-function batchRenderTikz(codes: string[]): Promise<string[]> {
-  return new Promise((resolve) => {
-    const renderScript = getRenderScript();
-    const input = JSON.stringify(codes);
-    const child = spawn('node', [renderScript], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 60000,
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (d) => (stdout += d));
-    child.stderr.on('data', (d) => (stderr += d));
-
-    child.on('error', (err) => {
-      console.error('[tikz] spawn error:', err.message);
-      resolve(codes.map(() => '<span class="tikz-error">Error: render process failed</span>'));
-    });
-
-    child.on('close', (code) => {
-      if (stderr) console.error('[tikz]', stderr.trim());
-      if (code !== 0) {
-        console.error('[tikz] exit code:', code);
-        resolve(codes.map(() => '<span class="tikz-error">Error: render process failed</span>'));
-        return;
-      }
-      try {
-        resolve(JSON.parse(stdout));
-      } catch (err: any) {
-        console.error('[tikz] parse error:', err.message);
-        resolve(codes.map(() => '<span class="tikz-error">Error: invalid output</span>'));
-      }
-    });
-
-    child.stdin.write(input);
-    child.stdin.end();
-  });
-}
+import { batchRenderTikz } from './renderTikz';
 
 
 export interface MdxPost {

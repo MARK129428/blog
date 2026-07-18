@@ -28,10 +28,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  experimental: {
-    outputFileTracingIncludes: {
-      '/**': ['./scripts/**/*'],
-    },
+  outputFileTracingIncludes: {
+    '/**': ['./scripts/**/*'],
   },
 };
 
