@@ -15,12 +15,19 @@ import { getCatalogNames } from '@/lib/content';
 import { getCatalogLabel } from '@/config/catalogs';
 import './globals.css';
 
+function getMetadataBase(): URL {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn';
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL('https://www.hehk.cn');
+  }
+}
+
 export const metadata: Metadata = {
   title: siteConfig.title,
   description: siteConfig.description,
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://www.hehk.cn',
-  ),
+  metadataBase: getMetadataBase(),
 };
 
 export default function RootLayout({
