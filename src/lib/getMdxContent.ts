@@ -8,10 +8,13 @@ import { extractToc, TocItem } from './extractToc';
 import { parseDate } from './content';
 import { estimateReadingTime } from './readingTime';
 
-const renderScript = path.join(process.cwd(), 'scripts/render-tikz.mjs');
+function getRenderScript(): string {
+  return path.join(process.cwd(), 'scripts/render-tikz.mjs');
+}
 
 function batchRenderTikz(codes: string[]): Promise<string[]> {
   return new Promise((resolve) => {
+    const renderScript = getRenderScript();
     const input = JSON.stringify(codes);
     const child = spawn('node', [renderScript], {
       stdio: ['pipe', 'pipe', 'pipe'],
