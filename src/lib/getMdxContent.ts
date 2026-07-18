@@ -9,7 +9,11 @@ import { parseDate } from './content';
 import { estimateReadingTime } from './readingTime';
 
 function getRenderScript(): string {
-  return path.join(process.cwd(), 'scripts/render-tikz.mjs');
+  // 动态拼接路径使 Turbopack 无法静态追踪
+  const scriptDir = 'scripts';
+  const scriptName = 'render-tikz';
+  const scriptExt = 'mjs';
+  return path.join(process.cwd(), scriptDir, `${scriptName}.${scriptExt}`);
 }
 
 function batchRenderTikz(codes: string[]): Promise<string[]> {

@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  experimental: {
+    outputFileTracingIncludes: {
+      '/**': ['./scripts/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
